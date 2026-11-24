@@ -9,6 +9,7 @@ from unittest import mock
 
 from stellarhub.engine import debloat as D
 from stellarhub.engine import optimizer as O
+from stellarhub.i18n import CODES
 
 
 def feed_all(raw, step=7, oem="cp850"):
@@ -328,7 +329,7 @@ class Translations(unittest.TestCase):
         base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "stellarhub", "ui", "i18n")
         keys = {c["n"] for c in D.CATALOG} | {c["d"] for c in D.CATALOG} | {t["t"] for t in D.TWEAKS} | \
             {t["d"] for t in D.TWEAKS} | {n for _, n in D.GROUPS}
-        for lang in ("es", "pt", "it", "fr", "zh", "ja"):
+        for lang in (code for code in CODES if code != "en"):
             merged = {}
             folder = os.path.join(base, lang)
             for f in os.listdir(folder):

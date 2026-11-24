@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 from stellarhub.engine import hangar as h
-from stellarhub.i18n import tr
+from stellarhub.i18n import CODES, tr
 
 UI = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "stellarhub", "ui")
 
@@ -261,7 +261,7 @@ class Translations(unittest.TestCase):
         descs = re.findall(r"""^\s*A\('[^']+', '[^']*', '[^']*', '\w+', t\((?:'([^']*)'|"([^"]*)")\)""", js, re.M)
         descs = [a or b for a, b in descs]
         self.assertGreaterEqual(len(descs), 120)
-        for lang in ("es", "pt", "it", "fr", "zh", "ja"):
+        for lang in (code for code in CODES if code != "en"):
             with open(os.path.join(UI, "i18n", lang, "hangar.json"), encoding="utf-8") as fh:
                 d = json.load(fh)
             missing = [x for x in descs if x not in d]

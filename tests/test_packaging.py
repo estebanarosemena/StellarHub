@@ -7,6 +7,8 @@ import sys
 import unittest
 import xml.etree.ElementTree as ET
 
+from stellarhub.i18n import CODES
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -17,6 +19,16 @@ def read(*parts):
 
 class Installer(unittest.TestCase):
     ISS = read("packaging", "StellarHub.iss")
+
+    def test_russian_uses_the_installer_language_and_keeps_the_app_language(self):
+        self.assertIn('Name: "russian"; MessagesFile: "compiler:Languages\\Russian.isl"', self.ISS)
+        self.assertIn("7: Result := 'ru';", self.ISS)
+        self.assertIn(f"for I := 0 to {len(CODES) - 1} do", self.ISS)
+        self.assertIn("else if WizardLanguage = 'russian' then Result := 'ru'", self.ISS)
+        self.assertIn("LangCombo.Items.Add('Русский');", self.ISS)
+        russian = set(re.findall(r"(?m)^russian\.(\w+)=", self.ISS))
+        english = set(re.findall(r"(?m)^english\.(\w+)=", self.ISS))
+        self.assertEqual(russian, english)
 
     def test_installs_for_the_current_user_unless_the_user_chooses_otherwise(self):
         self.assertRegex(self.ISS, r"(?m)^PrivilegesRequired=lowest\s*$")

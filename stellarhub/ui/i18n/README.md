@@ -1,7 +1,7 @@
 # Translations
 
 StellarHub is written in English and translated into Spanish (`es`), Portuguese – Brazil (`pt`), Italian (`it`),
-French (`fr`), Simplified Chinese (`zh`) and Japanese (`ja`).
+French (`fr`), Simplified Chinese (`zh`), Japanese (`ja`) and Russian (`ru`).
 
 ## How it works
 
@@ -47,6 +47,7 @@ French (`fr`), Simplified Chinese (`zh`) and Japanese (`ja`).
 | fr | vous | |
 | zh | 你 | Simplified Chinese, concise; no spaces between Chinese characters, a space between Chinese and Latin text/numbers is fine |
 | ja | (no pronoun; polite form) | Japanese like Windows 11 in Japanese: です/ます in sentences, short noun phrases for labels and buttons; 、 and 。; a space between Japanese and Latin text/numbers |
+| ru | вежливая форма, «вы» | Use Windows terminology such as «Диспетчер устройств», «Корзина» and «Точка восстановления». Prefer infinitives for buttons and neutral wording for counts where the source has only singular and plural. |
 
 Short labels stay short (buttons, tabs, chips must fit). Sentence case as in English (no Title Case).
 

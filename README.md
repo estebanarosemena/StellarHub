@@ -171,8 +171,8 @@ under which conditions and what to do.
 - **Lighter effects on battery**: unplugged, StellarHub switches to simpler effects, a calmer starfield and slower
   live data, so it stays smooth and saves power (*Settings > Animation*, on by default). Hidden in the tray it uses
   no GPU at all.
-- **Seven languages**: English, Español, Português (Brasil), Italiano, Français, 简体中文 and 日本語. It follows the Windows
-  language by default and can be changed in *Settings > General*.
+- **Eight languages**: English, Español, Português (Brasil), Italiano, Français, 简体中文, 日本語 and Русский. StellarHub
+  follows the Windows display language by default. You can choose another language in *Settings > Language*.
 
 ## 🚀 Getting started
 
@@ -426,7 +426,7 @@ designs/                   the early design explorations
 - [x] Real engine: telemetry, drivers, apps, updates, disk, optimizer and monitor
 - [x] Scheduled tasks running on their own (while StellarHub is open, also hidden in the tray)
 - [x] `.exe` installer
-- [x] Seven languages
+- [x] Eight languages
 - [x] Automatic StellarHub updates from this repository
 - [x] Portable version (1.0.0)
 - [x] Updates signed by the author, verified before installing (2.0.0)

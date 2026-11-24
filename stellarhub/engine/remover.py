@@ -546,7 +546,9 @@ def open_regedit(display):
         prefix = last.split("\\HKEY_")[0]
     else:  # regedit names its root after the Windows display language and has not saved one yet
         from ..i18n import windows_language
-        prefix = {"es": "Equipo", "pt": "Computador", "fr": "Ordinateur", "zh": "计算机", "ja": "コンピューター"}.get(windows_language(), "Computer")
+        prefixes = {"es": "Equipo", "pt": "Computador", "fr": "Ordinateur",
+                    "zh": "计算机", "ja": "コンピューター", "ru": "Компьютер"}
+        prefix = prefixes.get(windows_language(), "Computer")
     with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Applets\Regedit") as k:
         winreg.SetValueEx(k, "LastKey", 0, winreg.REG_SZ, f"{prefix}\\{target}")
     subprocess.Popen(["regedit", "/m"])

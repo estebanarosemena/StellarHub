@@ -5,8 +5,10 @@ import re
 import unittest
 from pathlib import Path
 
+from stellarhub.i18n import CODES
+
 UI = Path(__file__).resolve().parent.parent / "stellarhub" / "ui"
-LANGS = ["es", "pt", "it", "fr", "zh", "ja"]
+LANGS = [code for code in CODES if code != "en"]
 
 
 def dictionary(lang):

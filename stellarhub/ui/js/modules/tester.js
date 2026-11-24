@@ -697,7 +697,7 @@ tickers.add(() => {
 /* Standard Gamepad API: every button, both sticks with their dead zone and drift, the analog triggers, the polling
    rate and the rumble motors. Reads navigator.getGamepads() once per frame, only while this tab is open. */
 SH.icons.add({ bluetooth: '<path d="m7 7 10 10-5 5V2l5 5L7 17"/>', usb: '<circle cx="12" cy="19" r="2"/><path d="M12 17V4M12 4 9.5 6.5M12 4l2.5 2.5M12 12l5-3V7M7 14l5-2"/><path d="M16 6h2v2h-2z"/>', gamepad: '<path d="M7 7h10a4.5 4.5 0 0 1 4.4 5.4l-.9 4.2a2.6 2.6 0 0 1-4.3 1.4L14 16h-4l-2.2 2.9a2.6 2.6 0 0 1-4.3-1.4l-.9-4.2A4.5 4.5 0 0 1 7 7z"/><path d="M8 10v3M6.5 11.5h3M15.5 10.5h.01M17.5 12.5h.01"/>' });
-const PD_BTN = [[0, 'A'], [1, 'B'], [2, 'X'], [3, 'Y'], [4, 'LB'], [5, 'RB'], [6, 'LT'], [7, 'RT'], [8, t('View')], [9, t('Menu')], [10, t('Left stick click')], [11, t('Right stick click')],
+const PD_BTN = [[0, 'A'], [1, 'B'], [2, 'X'], [3, 'Y'], [4, 'LB'], [5, 'RB'], [6, 'LT'], [7, 'RT'], [8, SH.tc('tester', 'View')], [9, SH.tc('tester', 'Menu')], [10, t('Left stick click')], [11, t('Right stick click')],
   [12, t('D-pad up')], [13, t('D-pad down')], [14, t('D-pad left')], [15, t('D-pad right')]];
 const PD_DIRS = [['ls', 'up', t('Left stick up')], ['ls', 'down', t('Left stick down')], ['ls', 'left', t('Left stick left')], ['ls', 'right', t('Left stick right')],
   ['rs', 'up', t('Right stick up')], ['rs', 'down', t('Right stick down')], ['rs', 'left', t('Right stick left')], ['rs', 'right', t('Right stick right')]];

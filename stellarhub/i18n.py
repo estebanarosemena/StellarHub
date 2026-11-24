@@ -15,7 +15,7 @@ import os
 import sys
 import threading
 
-CODES = ("en", "es", "pt", "it", "fr", "zh", "ja")
+CODES = ("en", "es", "pt", "it", "fr", "zh", "ja", "ru")
 _lock = threading.Lock()
 _lang = None
 _dict = {}

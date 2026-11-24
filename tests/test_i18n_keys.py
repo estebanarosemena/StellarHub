@@ -8,9 +8,11 @@ import os
 import re
 import unittest
 
+from stellarhub.i18n import CODES
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UI = os.path.join(ROOT, "stellarhub", "ui")
-LANGS = ["es", "pt", "it", "fr", "zh", "ja"]
+LANGS = [code for code in CODES if code != "en"]
 STR = r"""('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|`(?:[^`\\$]|\\.|\$(?!\{))*`)"""
 ESC = {"n": "\n", "'": "'", '"': '"', "`": "`", "\\": "\\", "t": "\t"}
 
@@ -99,6 +101,15 @@ class Keys(unittest.TestCase):
 
     def test_the_scan_finds_the_keys(self):
         self.assertGreater(len(self.uses), 3000)
+
+    def test_language_codes_match_the_interface(self):
+        with open(os.path.join(UI, "js", "i18n.js"), encoding="utf-8") as fh:
+            self.assertEqual(tuple(re.findall(r"^  \['([a-z]{2})',", fh.read(), re.M)), CODES)
+
+    def test_russian_can_be_selected_and_has_a_dictionary(self):
+        self.assertIn("ru", CODES)
+        self.assertEqual(self.dicts["ru"]["Settings"], "Настройки")
+        self.assertEqual(self.dicts["ru"]["Open StellarHub"], "Открыть StellarHub")
 
     def test_every_literal_key_is_translated(self):
         for lang, d in self.dicts.items():

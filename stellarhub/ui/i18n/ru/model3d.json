@@ -1,0 +1,22 @@
+{
+  "Processor": "Процессор",
+  "Graphics": "Графика",
+  "Memory": "Память",
+  "Video memory": "Видеопамять",
+  "Drive C:": "Диск C:",
+  "CPU fan": "Вентилятор CPU",
+  "GPU fan": "Вентилятор GPU",
+  "GPU power": "Потребление GPU",
+  "Download": "Приём",
+  "Upload": "Отдача",
+  "Battery": "Батарея",
+  "Last 2 minutes": "Последние 2 минуты",
+  "Components": "Компоненты",
+  "Laptop": "Ноутбук",
+  "3D model": "3D-модель",
+  "Your PC in 3D: drag to rotate it and hover a component to see where it is.": "Вращайте 3D-модель мышью. Наведите указатель на компонент, чтобы увидеть, где он находится.",
+  "Drag to rotate it. Scroll to zoom in.": "Перетаскивайте, чтобы повернуть модель. Вращайте колёсико, чтобы изменить масштаб.",
+  "Rotate, press to reset": "Вращать, нажать для сброса",
+  "Zoom": "Масштаб",
+  "Right stick to rotate it, LB and RB to zoom, press the stick to reset.": "Вращайте модель правым стиком, меняйте масштаб кнопками LB и RB. Нажмите стик, чтобы вернуть исходный вид."
+}
