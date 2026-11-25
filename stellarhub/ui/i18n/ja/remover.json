@@ -150,6 +150,8 @@
   "freed in total": "合計解放量",
   "A restore point is kept in case something stopped working.": "問題が起きた場合に備えて、復元ポイントが保持されています。",
   "Search for a program or publisher": "プログラムまたは発行元を検索",
+  "remover|Compact": "コンパクト",
+  "Group the programs of each publisher": "発行元ごとにプログラムをまとめる",
   "Recent": "最近",
   "Store": "ストア",
   "System": "システム",

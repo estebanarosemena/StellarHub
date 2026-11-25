@@ -150,6 +150,8 @@
   "freed in total": "共释放",
   "A restore point is kept in case something stopped working.": "已保留还原点，以防有东西无法正常工作。",
   "Search for a program or publisher": "搜索程序或发布者",
+  "remover|Compact": "紧凑",
+  "Group the programs of each publisher": "按发布者分组程序",
   "Recent": "最近",
   "Store": "应用商店",
   "System": "系统",

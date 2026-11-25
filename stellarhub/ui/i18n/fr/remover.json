@@ -150,6 +150,8 @@
   "freed in total": "libérés au total",
   "A restore point is kept in case something stopped working.": "Un point de restauration est conservé au cas où quelque chose ne fonctionnerait plus.",
   "Search for a program or publisher": "Rechercher un programme ou un éditeur",
+  "remover|Compact": "Compact",
+  "Group the programs of each publisher": "Regrouper les programmes de chaque éditeur",
   "Recent": "Récents",
   "Store": "Store",
   "System": "Système",
