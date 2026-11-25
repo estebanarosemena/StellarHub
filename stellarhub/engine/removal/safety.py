@@ -42,6 +42,10 @@ def protected_exact():
         k.get("Startup"), k.get("CommonStartup"), k.get("Temp"), k.get("UserProgramFiles"),
         _j(prof, "AppData"), _j(local, "Programs"), _j(local, "Temp"), _j(prof, ".."),
         _j(local, "Microsoft", "WinGet", "Packages"),
+        # the profile's own folders where Windows first made them: OneDrive backup (or a move to another drive)
+        # points Documents and the rest elsewhere, and the old folder often still holds files
+        *(_j(prof, n) for n in ("Desktop", "Documents", "Downloads", "Music", "Pictures", "Videos", "Saved Games",
+                                "Contacts", "Favorites", "Links", "Searches", "OneDrive")),
         # shared audio plugin folders
         _j(cf, "VST3"), _j(cf, "VST2"), _j(cf, "VST"), _j(cf, "CLAP"), _j(cf, "Avid"),
         _j(cf, "Avid", "Audio"), _j(cf, "Avid", "Audio", "Plug-Ins"), _j(pf, "VSTPlugins"),
