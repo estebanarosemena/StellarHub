@@ -116,6 +116,8 @@
   "Last checked {when}.": "最終確認: {when}。",
   "Windows Update is still searching.": "Windows Update はまだ検索中です。",
   "Search for an app": "アプリを検索",
+  "updater|Compact": "コンパクト",
+  "Group the programs of each publisher": "発行元ごとにプログラムをまとめる",
   "Pending": "保留中",
   "Selected": "選択済み",
   "Ignored and pinned": "無視と固定",

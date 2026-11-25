@@ -116,6 +116,8 @@
   "Last checked {when}.": "上次检查：{when}。",
   "Windows Update is still searching.": "Windows 更新仍在搜索。",
   "Search for an app": "搜索应用",
+  "updater|Compact": "紧凑",
+  "Group the programs of each publisher": "按发布者分组程序",
   "Pending": "待更新",
   "Selected": "已选择",
   "Ignored and pinned": "已忽略和已固定",

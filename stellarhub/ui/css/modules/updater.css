@@ -44,6 +44,16 @@
 #v-updater .u-row{display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--sp-md);padding:8px 10px;border-radius:var(--r-m);
   transition:background-color calc(150ms*var(--f)),opacity calc(300ms*var(--f))}
 #v-updater .u-row:hover{background:var(--raise2)}
+#v-updater .u-ghead{cursor:pointer}
+#v-updater .u-ghead .u-gsp{width:20px;flex:none}
+#v-updater .u-ghead .u-name{flex:0 1 auto}
+#v-updater .u-ghead .gch{flex:1;display:flex;align-items:center;color:var(--mute)}
+#v-updater .u-ghead .gch svg{width:var(--ic-m);height:var(--ic-m);transition:transform calc(180ms*var(--f))}
+#v-updater .u-ghead.open .gch svg{transform:rotate(90deg)}
+#v-updater .u-ghead:hover .gch{color:var(--ink)}
+#v-updater .u-gbody{padding-left:28px}
+#v-updater .u-gbody[hidden]{display:none}
+#v-updater .u-gbtn.on{background:var(--raise2);color:var(--ink)}
 #v-updater .u-row .check{cursor:pointer}
 #v-updater .u-name{flex:1;min-width:0;text-align:left;padding:2px 0;cursor:pointer}
 #v-updater .u-name b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color calc(150ms*var(--f))}

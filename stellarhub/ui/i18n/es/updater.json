@@ -116,6 +116,8 @@
   "Last checked {when}.": "Última comprobación: {when}.",
   "Windows Update is still searching.": "Windows Update sigue buscando.",
   "Search for an app": "Buscar una aplicación",
+  "updater|Compact": "Compacto",
+  "Group the programs of each publisher": "Agrupa los programas de cada editor",
   "Pending": "Pendientes",
   "Selected": "Seleccionadas",
   "Ignored and pinned": "Ignoradas y fijadas",

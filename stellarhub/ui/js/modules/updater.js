@@ -681,13 +681,31 @@ function updateOverviewCounts(first) {
 
 /* ---------------- Apps ---------------- */
 let appsFilter = 'all', appsQuery = '';
+/* compact list: the apps of a publisher with two or more pending updates fold under one row that opens like a list
+   ("Microsoft Corporation", "Microsoft Corp." and "Корпорация Майкрософт" are one publisher) */
+let appsGrouped = state.settings.updaterGroup !== false; const appsOpen = new Set(); let appsGroups = new Map();
+const LEGAL = /\b(corporation|corp|incorporated|inc|llc|ltd|limited|gmbh|co|company|s\.?a|s\.?r\.?l|ag|bv|oy|ab|plc|pty|the|корпорация|ооо|ао|зао)\b\.?/gi;
+const pubKey = it => { const w = (it.pub || '').toLowerCase().replace(/майкрософт/g, 'microsoft').replace(LEGAL, ' ').replace(/[^\p{L}\p{N}]+/gu, ' ').trim().split(' ')[0]; return w || null; };
+const pubName = its => its.map(i => (i.pub || '').replace(LEGAL, ' ').replace(/[\s,.]+$/g, '').replace(/\s+/g, ' ').trim()).filter(Boolean).sort((a, b) => a.length - b.length)[0] || its[0].pub;
+function groupedRows(apps) {
+  appsGroups = new Map(); apps.forEach(i => { const k = pubKey(i); if (k) (appsGroups.get(k) || appsGroups.set(k, []).get(k)).push(i); });
+  const done = new Set(), out = [];
+  apps.forEach(it => {
+    const k = pubKey(it), g = k && appsGroups.get(k);
+    if (!g || g.length < 2) { out.push(itemRow(it)); return; }
+    if (done.has(k)) return; done.add(k);
+    const open = appsOpen.has(k) || !!appsQuery, live = g.filter(i => !i.done);
+    out.push(`<div class="u-row u-ghead${open ? ' open' : ''}" data-ugtog="${esc(k)}" aria-expanded="${open}"><span class="u-gsp"></span>${tile(g.find(i => i.icon) || g[0])}<span class="u-name"><b>${esc(pubName(g))}</b><span>${t('{n} apps', { n: g.length })}</span></span><span class="gch">${ic('chev')}</span><span class="u-ver"></span><span class="u-size">${mb(g.reduce((a, i) => a + (i.mb || 0), 0))}</span><span class="u-act">${live.length ? `<button class="btn sm sec" data-ugup="${esc(k)}">${t('Update all')}</button>` : ''}</span></div><div class="u-gbody"${open ? '' : ' hidden'}>${g.map(i => itemRow(i)).join('')}</div>`);
+  });
+  return out.join('');
+}
 function renderApps(el) {
   el.classList.add('fill');
   el.innerHTML = `<div class="u-apps">
     <div class="pan u-list u-fp" data-asm>
       <div class="u-ph"><label class="field u-search">${ic('search')}<input placeholder="${esc(t('Search for an app'))}" spellcheck="false"></label>
         <div class="seg u-filt"><span class="ind"></span><button data-f="all" class="on">${t('Pending')}</button><button data-f="sel">${t('Selected')}</button><button data-f="hidden">${t('Ignored and pinned')}</button></div>
-        <span class="sp"></span><span class="faint u-acount"></span></div>
+        <span class="sp"></span><button class="btn sm ghost u-gbtn${appsGrouped ? ' on' : ''}" data-ucompact aria-pressed="${appsGrouped}" title="${esc(t('Group the programs of each publisher'))}">${ic('layers')}${SH.tc('updater', 'Compact')}</button><span class="faint u-acount"></span></div>
       ${selBar()}
       <div class="tbl-head u-th">${groupCheck('apps', t('Apps'))}<span>${t('App')}</span><span>${t('Version')}</span><span>${t('Size')}</span><span></span></div>
       <div class="u-scroll"><div class="u-applist rows"></div></div>
@@ -722,7 +740,7 @@ function refreshAppsFilter(animate) {
   const html = apps.map(it => appsFilter === 'hidden'
     ? `<div class="u-row" data-item="${esc(it.id)}">${tile(it)}<span class="u-name"><b>${esc(dn(it.name))}</b><span>${S.ignored.has(it.id) ? t('You ignore version {v}', { v: esc(it.to) }) : t('Pinned to {v}', { v: esc(it.from) })}</span></span>${vers(it)}<span class="u-size">${mb(it.mb)}</span><span class="u-act"><button class="btn sm ghost" data-unhide="${esc(it.id)}">${t('Show again')}</button></span></div>`
     : itemRow(it)).join('');
-  list.innerHTML = html || SH.emptyState({ art: appsFilter === 'hidden' || appsFilter === 'sel' ? 'first' : appsQuery ? 'none' : S.errs.apps || S.noWinget ? 'error' : 'ok', title: appsFilter === 'hidden' ? t("You aren't ignoring any version") : appsFilter === 'sel' ? t('Nothing selected yet') : appsQuery ? t('No app with that name') : S.errs.apps || S.noWinget ? t('No results') : t('Your apps are up to date'), text: appsFilter === 'sel' ? t('Check the box next to the apps you want to update.') : '', action: !appsFilter || appsFilter === 'pending' || appsFilter === 'all' ? { label: t('Check for updates'), click: '#v-updater [data-check]' } : null }) + errBox('apps');
+  list.innerHTML = (appsGrouped && appsFilter !== 'hidden' && apps.length ? groupedRows(apps) : html) || SH.emptyState({ art: appsFilter === 'hidden' || appsFilter === 'sel' ? 'first' : appsQuery ? 'none' : S.errs.apps || S.noWinget ? 'error' : 'ok', title: appsFilter === 'hidden' ? t("You aren't ignoring any version") : appsFilter === 'sel' ? t('Nothing selected yet') : appsQuery ? t('No app with that name') : S.errs.apps || S.noWinget ? t('No results') : t('Your apps are up to date'), text: appsFilter === 'sel' ? t('Check the box next to the apps you want to update.') : '', action: !appsFilter || appsFilter === 'pending' || appsFilter === 'all' ? { label: t('Check for updates'), click: '#v-updater [data-check]' } : null }) + errBox('apps');
   if (animate) $$('.u-row, .empty', list).slice(0, 14).forEach((r, i) => anim(r, [{ opacity: 0, transform: 'translate3d(0,10px,0)' }, { opacity: 1, transform: 'none' }], { d: 380, delay: i * 28, e: EASE.spring }));
   const pend = pendingIn('apps'); const cnt = $('.u-apend', el);
   if (cnt && +(cnt.dataset.v || 0) !== pend.length) SH.countUp(cnt, pend.length, 600);
@@ -1052,6 +1070,9 @@ function bindCommon(el) {
   el.addEventListener('click', async e => {
     if (queueClicks(e)) return;
     if (e.target.closest('[data-all]')) { updateAll(); return; }
+    const gup = e.target.closest('[data-ugup]'); if (gup) { const ids = (appsGroups.get(gup.dataset.ugup) || []).filter(i => !i.done).map(i => i.id); if (ids.length) confirmRun(ids, t('Update all'), () => { goOverview(); enqueue(ids); }); return; }
+    const gtg = e.target.closest('[data-ugtog]'); if (gtg && !e.target.closest('button')) { const k = gtg.dataset.ugtog; if (appsOpen.has(k)) appsOpen.delete(k); else appsOpen.add(k); refreshAppsFilter(false); return; }
+    const cpt = e.target.closest('[data-ucompact]'); if (cpt) { appsGrouped = !appsGrouped; SH.setSetting('updaterGroup', appsGrouped); cpt.classList.toggle('on', appsGrouped); cpt.setAttribute('aria-pressed', appsGrouped); refreshAppsFilter(true); return; }
     const one = e.target.closest('[data-one]'); if (one) { if (enqueue([one.dataset.one])) { one.disabled = true; one.innerHTML = `<span class="u-spin"></span>${t('Queued')}`; SH.toast(t('{name} added to the queue.', { name: S.byId[one.dataset.one].name }), { action: { label: t('See the queue'), run: goOverview }, group: 'upd-add' }); } return; }
     const grp = e.target.closest('[data-grp]'); if (grp) { const ids = pendingIn(grp.dataset.grp).map(i => i.id); if (!ids.length) { SH.toast(t('That group is already up to date.')); return; } confirmRun(ids, CATS[grp.dataset.grp].u, () => { enqueue(ids); goOverview(); }); return; }
     const ga = e.target.closest('[data-gall]'); if (ga) { toggleGroup(ga); return; }
