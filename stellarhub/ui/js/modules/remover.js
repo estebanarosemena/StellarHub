@@ -655,7 +655,12 @@ function renderPrograms(el, ctx) {
   }));
   let qt = 0; $('#rpQ', el).addEventListener('input', e => { q = e.target.value.trim(); clearTimeout(qt); qt = setTimeout(() => { apply(false); }, 110); });
   wireSeg($('.seg', el), v => { filt = v; apply(false); });
-  list.addEventListener('click', e => { const r = e.target.closest('.pr'); if (r) select(PROGRAMS.find(p => p.id === r.dataset.p), r); });
+  list.addEventListener('click', e => {
+    const r = e.target.closest('.pr'); if (!r) return; const p = PROGRAMS.find(x => x.id === r.dataset.p);
+    /* a click on the selected program closes it (back to the summary); the second click of a double-click is not one */
+    if (p && p === selected && e.detail < 2) { r.classList.remove('sel'); showSummary(); return; }
+    if (p !== selected) select(p, r);
+  });
   list.addEventListener('dblclick', e => { const r = e.target.closest('.pr'); if (r) openFlow([PROGRAMS.find(p => p.id === r.dataset.p)]); });
   const det = $('#rpDetail', el);
   function summary() {
