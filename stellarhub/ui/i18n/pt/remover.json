@@ -496,5 +496,7 @@
   "{name} uninstalled. {n} leftovers to review.": "{name} desinstalado. {n} resíduos para revisar.",
   "{name} uninstalled. Nothing was left behind.": "{name} desinstalado. Nada ficou para trás.",
   "1 uninstall is kept until the PC restarts: some of its files are still waiting to be moved.": "1 desinstalação é mantida até o PC reiniciar: alguns dos seus arquivos ainda aguardam para ser movidos.",
-  "{n} uninstalls are kept until the PC restarts: some of their files are still waiting to be moved.": "{n} desinstalações são mantidas até o PC reiniciar: alguns dos seus arquivos ainda aguardam para ser movidos."
+  "{n} uninstalls are kept until the PC restarts: some of their files are still waiting to be moved.": "{n} desinstalações são mantidas até o PC reiniciar: alguns dos seus arquivos ainda aguardam para ser movidos.",
+  "Confidence": "Confiança",
+  "How sure StellarHub is that this belongs to the program, from 0 to 100.": "O quanto o StellarHub tem certeza de que isto pertence ao programa, de 0 a 100."
 }

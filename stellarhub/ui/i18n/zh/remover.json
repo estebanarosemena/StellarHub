@@ -496,5 +496,7 @@
   "{name} uninstalled. {n} leftovers to review.": "已卸载 {name}。有 {n} 个残留项待检查。",
   "{name} uninstalled. Nothing was left behind.": "已卸载 {name}。没有留下任何残留项。",
   "1 uninstall is kept until the PC restarts: some of its files are still waiting to be moved.": "1 次卸载会保留到电脑重启：它的部分文件仍在等待移动。",
-  "{n} uninstalls are kept until the PC restarts: some of their files are still waiting to be moved.": "{n} 次卸载会保留到电脑重启：它们的部分文件仍在等待移动。"
+  "{n} uninstalls are kept until the PC restarts: some of their files are still waiting to be moved.": "{n} 次卸载会保留到电脑重启：它们的部分文件仍在等待移动。",
+  "Confidence": "可信度",
+  "How sure StellarHub is that this belongs to the program, from 0 to 100.": "StellarHub 判断此项属于该程序的把握程度，0 到 100。"
 }

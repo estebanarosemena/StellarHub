@@ -116,6 +116,9 @@ html[data-int=min] #v-remover .bar.rv-indet>span{animation:none;width:100%;opaci
 #v-remover .scan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--sp-sm);max-width:980px}
 #v-remover .scan-grid .ck{padding:10px 12px}
 #v-remover .rv-groups{display:flex;flex-direction:column;gap:var(--sp-md)}
+#v-remover .rv-head{display:grid;grid-template-columns:28px minmax(0,1fr) 120px 70px;gap:var(--sp-md);padding:0 12px;font-size:var(--fs-cap);color:var(--faint);margin-bottom:calc(-1*var(--sp-sm))}
+#v-remover .rv-head span:nth-child(3){cursor:help}
+#v-remover .rv-head span:last-child{text-align:right}
 #v-remover .rg h5{font-size:var(--fs-sm);font-weight:500;color:var(--mute);display:flex;align-items:center;gap:var(--sp-sm);margin:0 0 6px 4px}
 #v-remover .rg h5 svg{width:var(--ic-m);height:var(--ic-m)}
 #v-remover .lo{display:grid;grid-template-columns:28px minmax(0,1fr) 120px 70px;gap:var(--sp-md);align-items:center;width:100%;text-align:left;padding:9px 12px;border-radius:var(--r-m);
