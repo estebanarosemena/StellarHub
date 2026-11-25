@@ -328,7 +328,7 @@ class Translations(unittest.TestCase):
         base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "stellarhub", "ui", "i18n")
         keys = {c["n"] for c in D.CATALOG} | {c["d"] for c in D.CATALOG} | {t["t"] for t in D.TWEAKS} | \
             {t["d"] for t in D.TWEAKS} | {n for _, n in D.GROUPS}
-        for lang in ("es", "pt", "it", "fr", "zh", "ja"):
+        for lang in ("es", "pt", "it", "fr", "zh", "ja", "ru"):
             merged = {}
             folder = os.path.join(base, lang)
             for f in os.listdir(folder):

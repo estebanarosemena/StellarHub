@@ -10,7 +10,7 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UI = os.path.join(ROOT, "stellarhub", "ui")
-LANGS = ["es", "pt", "it", "fr", "zh", "ja"]
+LANGS = ["es", "pt", "it", "fr", "zh", "ja", "ru"]
 STR = r"""('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|`(?:[^`\\$]|\\.|\$(?!\{))*`)"""
 ESC = {"n": "\n", "'": "'", '"': '"', "`": "`", "\\": "\\", "t": "\t"}
 

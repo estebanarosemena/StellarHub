@@ -227,12 +227,13 @@ _ID_LIKE = re.compile(r"^(ARP\\|MSIX\\|[0-9A-Z]{12}$|\S+\.\S+)", re.I)
 
 # column headers in the languages winget prints them in (it follows the Windows display language)
 _HEADERS = {
-    "name": {"name", "nombre", "nom", "nome", "名称", "名稱", "名前", "이름"},
-    "id": {"id", "identificador", "identifiant", "identificatore", "kennung", "標識碼"},
-    "version": {"version", "versión", "versão", "versione", "版本", "バージョン", "버전"},
+    "name": {"name", "nombre", "nom", "nome", "名称", "名稱", "名前", "이름", "имя"},
+    "id": {"id", "identificador", "identifiant", "identificatore", "kennung", "標識碼", "ид"},
+    "version": {"version", "versión", "versão", "versione", "版本", "バージョン", "버전", "версия"},
     "available": {"available", "disponible", "disponível", "disponibile", "verfügbar", "可用", "利用可能", "사용 가능", "доступно"},
     "source": {"source", "origen", "fuente", "fonte", "origine", "quelle", "源", "ソース", "원본", "источник"},
-    "match": {"match", "coincidencia", "correspondance", "corrispondenza", "correspondência", "übereinstimmung", "匹配"},
+    "match": {"match", "coincidencia", "correspondance", "corrispondenza", "correspondência", "übereinstimmung", "匹配",
+              "совпадение"},
 }
 
 
@@ -457,14 +458,14 @@ def notes(wid):
     out = _winget(["show", "--id", wid, "--exact"], timeout=60) or ""
     lines, take, url = [], False, ""
     for ln in out.splitlines():
-        # field names in English and Spanish (winget follows the Windows language)
-        if re.match(r"^\s*(Release Notes|Notas de la versión)\s*:", ln, re.I):
+        # field names in English, Spanish and Russian (winget follows the Windows language)
+        if re.match(r"^\s*(Release Notes|Notas de la versión|Заметки о выпуске)\s*:", ln, re.I):
             take = True
             rest = ln.split(":", 1)[1].strip()
             if rest:
                 lines.append(rest)
             continue
-        m = re.match(r"^\s*(Release Notes Url|Dirección URL de las notas de la versión)\s*:\s*(\S+)", ln, re.I)
+        m = re.match(r"^\s*(Release Notes Url|Dirección URL de las notas de la versión|URL-адрес заметок о выпуске)\s*:\s*(\S+)", ln, re.I)
         if m:
             url = m.group(2)
             take = False
@@ -520,7 +521,7 @@ def defender_running(mode):
     ("ejecución normal", "Modo pasivo", "No se está ejecutando"...): any mode counts except a passive or not running
     one, in the languages StellarHub speaks (a Spanish "Modo pasivo" used to count as on: only English was checked)."""
     low = str(mode or "").strip().lower()
-    return bool(low) and not re.search(r"pass?i[vf]|\bnot?\b|\bnon\b|\bpas\b|nicht|未|停止|無効|关闭", low)
+    return bool(low) and not re.search(r"pass?i[vf]|\bnot?\b|\bnon\b|\bpas\b|nicht|未|停止|無効|关闭|пассивн|не выполня", low)
 
 
 def _pretty_title(t):
@@ -531,11 +532,12 @@ def _pretty_title(t):
 def _wu_cat(u):
     cats = " ".join(u.get("cats") or []).lower()
     t = (u.get("title") or "").lower()
-    # category and title words in English and Spanish (Windows Update answers in the system language)
-    if u.get("browse") or "preview" in t or "vista previa" in t:
+    # category and title words in English, Spanish and Russian (Windows Update answers in the system language)
+    if u.get("browse") or "preview" in t or "vista previa" in t or "предварительн" in t:
         return "optional"
     if "security" in cats or "seguridad" in cats or "critical" in cats or "crítica" in cats or "definition" in cats \
-            or "definici" in cats or "malicious" in t or "malintencionado" in t or u.get("sev"):
+            or "definici" in cats or "malicious" in t or "malintencionado" in t or u.get("sev") \
+            or "безопасност" in cats or "критическ" in cats or "определени" in cats or "вредоносн" in t:
         return "security"
     return "windows"
 
@@ -771,8 +773,9 @@ def _winget_upgrade(job, it, report):
             report("down", state["p"], mb=state["mb"])
             return
         low = s.lower()
-        # progress words in English and Spanish (winget follows the Windows language)
-        if any(w in low for w in ("starting package install", "iniciando la instalación", "installing", "instalando")):
+        # progress words in English, Spanish and Russian (winget follows the Windows language)
+        if any(w in low for w in ("starting package install", "iniciando la instalación", "installing", "instalando",
+                                  "запуск установки пакета")):
             state["phase"] = "inst"
             report("inst", 1, mb=state["mb"])
         job.log(s)

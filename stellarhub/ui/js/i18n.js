@@ -18,6 +18,7 @@ const LANGS = [
   ['fr', 'Français', 'French', 'fr-FR'],
   ['zh', '简体中文', 'Chinese (Simplified)', 'zh-CN'],
   ['ja', '日本語', 'Japanese', 'ja-JP'],
+  ['ru', 'Русский', 'Russian', 'ru-RU'],
 ];
 /* the dictionary files every language may have (missing ones are simply skipped) */
 const AREAS = ['common', 'shell', 'home', 'sheet', 'widget', 'monitor', 'drivers', 'remover', 'updater', 'storage',

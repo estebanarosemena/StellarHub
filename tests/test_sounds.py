@@ -379,7 +379,7 @@ class Translations(unittest.TestCase):
         keys |= {"Notification sound"}
         keys |= {"Sound", "Change the sound volume"}
         self.assertGreaterEqual(len(keys), 14)
-        for lang in ("es", "pt", "it", "fr", "zh", "ja"):
+        for lang in ("es", "pt", "it", "fr", "zh", "ja", "ru"):
             d = {}
             folder = os.path.join(UI, "i18n", lang)
             for f in os.listdir(folder):

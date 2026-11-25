@@ -165,7 +165,7 @@ const PROGRAMS = RAW.split('\n').map((l, i) => {
 const ENGINE_TEXT = { '32-bit': T('32-bit'), '64-bit': T('64-bit'), 'Current user': T('Current user'), 'Built into the program': T('Built into the program') };
 const totalGB = () => PROGRAMS.reduce((a, p) => a + p.mb, 0) / 1024;
 /* short date in the interface language; Chinese and Japanese use the compact numeric form (2026/10/31) so it fits the columns */
-const DATE_OPTS = SH.i18n && (SH.i18n.lang === 'zh' || SH.i18n.lang === 'ja') ? { year: 'numeric', month: 'numeric', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' };
+const DATE_OPTS = SH.i18n && (SH.i18n.lang === 'zh' || SH.i18n.lang === 'ja' || SH.i18n.lang === 'ru') ? { year: 'numeric', month: 'numeric', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' };
 const fmtDate = d => d ? d.toLocaleDateString((SH.i18n && SH.i18n.locale) || 'en-US', DATE_OPTS) : '—';
 const fmtMB = mb => !mb ? '—' : mb >= 1024 ? `${fmt1(mb / 1024)} GB` : `${Math.max(1, Math.round(mb))} MB`;
 const NOW = () => (REAL() ? new Date() : TODAY);

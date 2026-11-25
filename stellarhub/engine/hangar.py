@@ -497,7 +497,8 @@ def _install_one(job, it, opts, report):
         low = s.lower()
         # progress words in the languages winget prints (it follows the Windows display language)
         if any(w in low for w in ("starting package install", "iniciando la instalación", "iniciando a instalação",
-                                  "démarrage de l'installation", "avvio dell'installazione", "开始安装", "installing", "instalando")):
+                                  "démarrage de l'installation", "avvio dell'installazione", "开始安装", "installing", "instalando",
+                                  "запуск установки пакета")):
             state["phase"] = "inst"
             report("inst", 1, mb=state["mb"])
         job.log(s)

@@ -922,7 +922,7 @@ def defender_normal(mode):
     """Defender is the active antivirus ("Normal"; Windows has been seen writing it in its own language, "ejecución
     normal" on a Spanish Windows), not passive, off or not running."""
     m = str(mode or "").strip().lower()
-    return "normal" in m and "passive" not in m and "pasiv" not in m
+    return "normal" in m and "passive" not in m and "pasiv" not in m and "пассив" not in m
 
 
 def protection(job):

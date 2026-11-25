@@ -171,7 +171,7 @@ under which conditions and what to do.
 - **Lighter effects on battery**: unplugged, StellarHub switches to simpler effects, a calmer starfield and slower
   live data, so it stays smooth and saves power (*Settings > Animation*, on by default). Hidden in the tray it uses
   no GPU at all.
-- **Seven languages**: English, Español, Português (Brasil), Italiano, Français, 简体中文 and 日本語. It follows the Windows
+- **Eight languages**: English, Español, Português (Brasil), Italiano, Français, 简体中文, 日本語 and Русский. It follows the Windows
   language by default and can be changed in *Settings > General*.
 
 ## 🚀 Getting started

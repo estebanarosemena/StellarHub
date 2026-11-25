@@ -636,7 +636,7 @@ class OnDemand(unittest.TestCase):
             keys |= {k for k in re.findall(r"(?<![\w.])(?:SH\.t|t|T)\('((?:[^'\\]|\\.)*)'", src)
                      if re.search(r"Last (analysis|check|scan): \{when\}|Not (analyzed|checked) yet|Analyze automatically|These results are from then|^Check now looks|^The check reads|See what takes up space", k)}
         self.assertGreaterEqual(len(keys), 15)
-        for lang in ("es", "pt", "it", "fr", "zh", "ja"):
+        for lang in ("es", "pt", "it", "fr", "zh", "ja", "ru"):
             d = {}
             for f in os.listdir(os.path.join(UI, "i18n", lang)):
                 with open(os.path.join(UI, "i18n", lang, f), "rb") as fh:
