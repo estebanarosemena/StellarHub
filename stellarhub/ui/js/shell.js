@@ -214,7 +214,7 @@ function buildModule(m) {
   if (!s) { s = document.createElement('section'); s.className = 'view'; s.id = 'v-' + m.id; s.dataset.view = m.id; views.appendChild(s); }
   const def = registry.modules[m.id] || {}; const tabs = allTabsOf(m);
   const sample = !(m.real || def.real) ? `<span class="chip warn" title="${SH.t('Not connected to the real engine yet: what you see is sample data and does not reflect your PC')}">${SH.t('Sample data')}</span>` : '';
-  s.innerHTML = `<div class="mod"><header class="mhead" data-asm><div class="ttl"><h1>${esc(def.name || m.name)}${sample}</h1><p>${esc(def.desc || m.desc || '')}</p></div><div class="acts"></div></header>
+  s.innerHTML = `<div class="mod"><header class="mhead" data-asm><button class="iconbtn mback" data-back aria-label="${SH.t('Back')}" title="${SH.t('Back')}">${ic('chevl')}</button><div class="ttl"><h1>${esc(def.name || m.name)}${sample}</h1><p>${esc(def.desc || m.desc || '')}</p></div><div class="acts"></div></header>
     ${tabs.length > 1 ? `<nav class="subnav" data-asm role="tablist"><span class="ind"></span>${tabs.map((t, i) => `<button role="tab" data-tab="${t.id}"${i === 0 ? ' class="on"' : ''}${tabShown(t) ? '' : ' hidden'}>${esc(t.name)}<span class="bd" hidden></span></button>`).join('')}</nav>` : ''}
     <div class="tabs">${tabs.map((t, i) => `<div class="tab${i === 0 ? ' on' : ''}" data-tab="${t.id}" role="tabpanel"></div>`).join('')}</div></div>`;
   modState[m.id] = { tab: (tabs.find(tabShown) || tabs[0] || {}).id, rendered: new Set(), ix: new Spring(0, 300, 28), iw: new Spring(0, 300, 28), placed: false };
@@ -286,15 +286,18 @@ function pushHist() {
   if (fromHist) return;
   const e = { view: state.view, tab: modState[state.view] ? modState[state.view].tab : null }, cur = hist[hIdx];
   if (cur && cur.view === e.view && cur.tab === e.tab) return;
-  hist.splice(hIdx + 1); hist.push(e); if (hist.length > 80) hist.shift(); hIdx = hist.length - 1;
+  hist.splice(hIdx + 1); hist.push(e); if (hist.length > 80) hist.shift(); hIdx = hist.length - 1; syncBack();
 }
 function travel(d) {
   if (state.palOpen) { closePal(); return; } if (state.setOpen) { closeSettings(); return; }
   const i = hIdx + d; if (i < 0 || i >= hist.length) { const dk = $('.dk.on', dock); dk && anim(dk, [{ transform: 'translateX(0)' }, { transform: `translateX(${d * -4}px)` }, { transform: 'translateX(0)' }], { d: 260, keep: true }); return; }
-  hIdx = i; const e = hist[i]; fromHist = true;
+  hIdx = i; syncBack(); const e = hist[i]; fromHist = true;
   try { if (e.view === state.view) { if (e.tab) setTab(e.view, e.tab); } else go(e.view, { tab: e.tab }); } finally { fromHist = false; }
 }
 SH.back = () => travel(-1); SH.forward = () => travel(1);
+/* every module's Back button (beside its title): the same history as the mouse side buttons and Alt+Left */
+function syncBack() { $$('.mback').forEach(b => { b.disabled = hIdx <= 0; }); }
+addEventListener('click', e => { if (e.target.closest('.mback')) travel(-1); });
 const ownsMouse = e => e.target.closest && e.target.closest('#v-tester .tab[data-tab="mouse"]');
 addEventListener('mousedown', e => { if ((e.button === 3 || e.button === 4) && !ownsMouse(e)) e.preventDefault(); });
 addEventListener('mouseup', e => {

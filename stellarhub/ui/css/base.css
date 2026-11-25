@@ -305,6 +305,9 @@ html[data-int=min] .sk::after{animation:none}
 .mod{position:absolute;inset:6px 30px var(--dockspace);display:flex;flex-direction:column}
 .mhead{display:flex;align-items:flex-end;gap:var(--sp-lg);margin-bottom:16px}
 .mhead .ttl{flex:1;min-width:0}
+.mhead .mback{align-self:flex-start;flex:none;margin:-2px calc(-1*var(--sp-sm)) 0 -10px}
+.mhead .mback svg{width:22px;height:22px}
+.mhead .mback:disabled{opacity:.3;cursor:default}
 .mhead h1{font:500 var(--fs-h1)/1.1 var(--display);letter-spacing:-.03em;white-space:nowrap}
 .mhead p{color:var(--mute);margin-top:8px;max-width:640px;text-wrap:pretty}
 .mhead .acts{display:flex;gap:var(--sp-sm);align-items:center;justify-content:flex-end;flex-wrap:wrap;min-height:34px}
