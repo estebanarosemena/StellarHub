@@ -288,7 +288,8 @@ function enqueue(ids) {
   return added;
 }
 function startQueue() {
-  if (Q.running) return; Q.askedAdmin = false; Q.running = true; Q.paused = false;
+  if (Q.running) { if (REAL && !Q.paused) runQueueReal(); return; }  /* resumed or retried while some still run */
+  Q.askedAdmin = false; Q.running = true; Q.paused = false; Q.stop = false;
   Q.act = SH.activity.start(ID, { key: 'queue', label: t('Installing updates'), go: { tab: 'overview' } }); queueAct();
   if (REAL) runQueueReal(); else { clearInterval(Q.timer); Q.timer = setInterval(stepQueue, 60); }
   renderQueueHead();
@@ -300,11 +301,28 @@ function payload(it) {
   if (it.kind === 'defender') return { kind: 'defender', name: it.name };
   return { kind: it.kind, pkgs: it.pkgs, name: it.name };
 }
-async function runQueueReal() {
+/* winget updates run up to PAR at once, each its own engine job: a download no longer waits for the installer before
+   it. Windows Update, Defender, pip and npm run alone, as before (Windows installs one thing at a time). */
+const PAR = 3;
+const busyQ = () => Q.list.filter(q => q.st === 'down' || q.st === 'inst');
+const qWait = () => new Promise(r => (Q.waiters || (Q.waiters = [])).push(r));
+const qWake = () => { const w = Q.waiters || []; Q.waiters = []; w.forEach(f => f()); };
+function runQueueReal() {
+  Q.workers = Q.workers || 0;
+  while (Q.workers < PAR) { Q.workers++; queueWorker().catch(e => console.error(e)).finally(queueWorkerDone); }
+}
+function queueWorkerDone() {
+  if (--Q.workers > 0) return;
+  Q.running = false; renderQueueHead(); finishedToast(); publishPending();
+  if (Q.list.some(q => q.st === 'done' && q.it.kind === 'winget')) setTimeout(() => scanApps(true, 'quiet'), 1500);
+  if (Q.list.some(q => q.st === 'done' && (q.it.kind === 'pip' || q.it.kind === 'npm')) && S.devScanned) setTimeout(() => scanDev(true, 'quiet'), 1500);
+}
+async function queueWorker() {
   for (;;) {
-    if (Q.paused) break;
-    const cur = Q.list.find(q => q.st === 'queued'); if (!cur) break;
-    const it = cur.it;
+    if (Q.paused || Q.stop) return;
+    const cur = Q.list.find(q => q.st === 'queued'); if (!cur) return;
+    const it = cur.it, busy = busyQ();
+    if (busy.length && (it.kind !== 'winget' || busy.some(q => q.it.kind !== 'winget'))) { await qWait(); continue; }
     if (it.admin && !state.admin) { cur.st = 'admin'; if (!Q.askedAdmin) { Q.askedAdmin = true; SH.requireAdmin(t('to install Windows updates.')); } updQRow(cur); continue; }
     cur.st = 'down'; cur.p = 0; updQRow(cur); scrollQ(cur);
     const job = SH.job(ID, 'install', [[payload(it)]], { sound: 'task', onProgress: m => {
@@ -322,11 +340,9 @@ async function runQueueReal() {
     /* a failed update stays in the history too, with the reason: nobody should believe it was installed */
     else if (cur.st === 'fail') SH.logActivity(t('{name} could not be updated', { name: dn(it.name) }), { sub: String(cur.msg || t('Something went wrong.')).slice(0, 120), ic: 'alert', go: ID, tab: 'apps' });
     updQRow(cur);
-    if (cur.cancelAfter) { Q.list.forEach(q => { if (q.st === 'queued') { q.st = 'cancel'; updQRow(q); } }); break; }
+    qWake();
+    if (cur.cancelAfter) { Q.stop = true; Q.list.forEach(q => { if (q.st === 'queued') { q.st = 'cancel'; updQRow(q); } }); qWake(); return; }
   }
-  Q.running = false; renderQueueHead(); finishedToast(); publishPending();
-  if (Q.list.some(q => q.st === 'done' && q.it.kind === 'winget')) setTimeout(() => scanApps(true, 'quiet'), 1500);
-  if (Q.list.some(q => q.st === 'done' && (q.it.kind === 'pip' || q.it.kind === 'npm')) && S.devScanned) setTimeout(() => scanDev(true, 'quiet'), 1500);
 }
 /* --- sample: simulation --- */
 function stepQueue() {
@@ -458,7 +474,7 @@ tickers.add(dt => {
   if (!moving && !Q.running) Q.dirty = false;
 });
 function queueClicks(e) {
-  if (e.target.closest('[data-qpause]')) { Q.paused = !Q.paused; if (!Q.paused && REAL && !Q.running) startQueue(); renderQueueHead(); SH.toast(Q.paused ? (REAL ? t('Stops after what is installing now finishes.') : t('Queue paused.')) : t('Resuming.'), { group: 'upd-q' }); return true; }
+  if (e.target.closest('[data-qpause]')) { Q.paused = !Q.paused; if (!Q.paused && REAL) startQueue(); renderQueueHead(); SH.toast(Q.paused ? (REAL ? t('Stops after what is installing now finishes.') : t('Queue paused.')) : t('Resuming.'), { group: 'upd-q' }); return true; }
   if (e.target.closest('[data-qresume]')) { Q.paused = false; startQueue(); return true; }
   if (e.target.closest('[data-qcancel]')) {
     Q.list.forEach(q => {

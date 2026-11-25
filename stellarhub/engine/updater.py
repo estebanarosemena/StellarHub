@@ -747,6 +747,10 @@ def download_sizes(line):
     return got * _SIZE[m.group(2)], tot * _SIZE[m.group(4)]
 
 
+_INSTALL_BUSY = "0x8A150102"  # winget: another installation is in progress
+_BUSY_TRIES, _BUSY_WAIT = 6, 15
+
+
 def _winget_upgrade(job, it, report):
     exe = _exe("winget")
     cmd = [exe, "upgrade", "--id", it["wid"], "--exact", "--silent", "--accept-package-agreements",
@@ -776,9 +780,21 @@ def _winget_upgrade(job, it, report):
             state["phase"] = "inst"
             report("inst", 1, mb=state["mb"])
         job.log(s)
-    code, out = _stream(cmd, on_text, job=job, timeout=3600)
-    if job.cancelled:
-        return "cancel", tr("Cancelled")
+    # Program Updater runs several of these at once: Windows installs one MSI at a time and refuses the others
+    # ("another installation is running"), so a refused one waits for its turn and runs again
+    for attempt in range(_BUSY_TRIES):
+        code, out = _stream(cmd, on_text, job=job, timeout=3600)
+        if job.cancelled:
+            return "cancel", tr("Cancelled")
+        if code is None or f"0x{code & 0xFFFFFFFF:08X}" != _INSTALL_BUSY or attempt == _BUSY_TRIES - 1:
+            break
+        job.log(f"Another installation is running: trying again in {_BUSY_WAIT} s")
+        state.update(phase="down", p=0.0)
+        report("down", 0, mb=state["mb"])
+        for _ in range(_BUSY_WAIT * 2):
+            if job.cancelled:
+                return "cancel", tr("Cancelled")
+            time.sleep(.5)
     # success text in English and Spanish
     if code == 0 or re.search(r"Successfully installed|Instalado correctamente|se instaló correctamente", out, re.I):
         return "done", None

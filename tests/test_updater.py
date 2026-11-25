@@ -114,3 +114,32 @@ class Defender(unittest.TestCase):
         for mode in ("", None, "Passive Mode", "SxS Passive Mode", "Modo pasivo", "Modalità passiva", "Mode passif",
                      "Passiver Modus", "Not running", "No se está ejecutando", "Non in esecuzione"):
             self.assertFalse(u.defender_running(mode), mode)
+
+
+class WingetBusy(unittest.TestCase):
+    """Program Updater runs several winget updates at once; one that Windows refuses because another installation is
+    running waits and runs again, any other failure does not. Nothing runs: the command is mocked."""
+
+    class Job:
+        cancelled = False
+
+        def log(self, line):
+            pass
+
+    def upgrade(self, codes):
+        from unittest import mock
+        calls = iter(codes)
+        with mock.patch.object(u, "_exe", return_value="winget.exe"), \
+                mock.patch.object(u, "_stream", side_effect=lambda *a, **k: (next(calls), "")) as st, \
+                mock.patch.object(u, "_BUSY_WAIT", 0):
+            r = u._winget_upgrade(self.Job(), {"wid": "Foo.Bar"}, lambda *a, **k: None)
+        return r[0], st.call_count
+
+    def test_busy_then_installed(self):
+        self.assertEqual(self.upgrade([0x8A150102, 0x8A150102, 0]), ("done", 3))
+
+    def test_other_failures_are_not_retried(self):
+        self.assertEqual(self.upgrade([0x8A150101]), ("fail", 1))
+
+    def test_gives_up_after_the_last_try(self):
+        self.assertEqual(self.upgrade([0x8A150102] * u._BUSY_TRIES), ("fail", u._BUSY_TRIES))
