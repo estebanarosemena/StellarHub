@@ -143,7 +143,13 @@ tickers.add(dt => {
 let dotDirty = true;
 SH.on('view', () => { dotDirty = true; });
 addEventListener('resize', () => { dotDirty = true; });
-dock.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) go(b.dataset.go); });
+/* a click on the module already open takes it back to its main tab, as coming to it from another module does */
+dock.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]'); if (!b) return;
+  const n = b.dataset.go, m = n === state.view && modById(n), main = m && (tabsOf(m)[0] || {}).id;
+  if (main && modState[n] && modState[n].tab !== main) { setTab(n, main); return; }
+  go(n);
+});
 
 /* a module busy with something the user started shows it on its dock icon while the user is elsewhere: a thin ring
    around the icon (filled to the progress, or a short arc in a slow orbit while it cannot be measured) and the status
