@@ -49,10 +49,22 @@ function Step([string]$name, [string]$exe, [string[]]$argv) {
 
 # 1. clean build environment (only what StellarHub needs, so only that ends up in the exe)
 $py = "$root\.buildenv\Scripts\python.exe"
-if (-not (Test-Path $py)) {
-    Write-Host "Creating .buildenv..."
-    Step "venv" "python" @("-m", "venv", ".buildenv")
+# a Python 3.12+ for it, even when an older one comes first in PATH: the py launcher's newest, then PATH's
+function Find-Python {
+    foreach ($c in @(@("py", "-3"), @("python"), @("python3"))) {
+        if (-not (Get-Command $c[0] -ErrorAction SilentlyContinue)) { continue }
+        $exe = & $c[0] @($c | Select-Object -Skip 1) -c "import sys; print(sys.executable if sys.version_info >= (3, 12) else '')" 2>$null
+        if ($LASTEXITCODE -eq 0 -and $exe) { return "$exe".Trim() }
+    }
+    throw "Python 3.12 or newer was not found (py -3, python, python3): install it from python.org or with winget install Python.Python.3.13"
 }
+if (-not (Test-Path $py)) {
+    $base = Find-Python
+    Write-Host "Creating .buildenv with $base..."
+    Step "venv" $base @("-m", "venv", ".buildenv")
+}
+$v = & $py -c "import sys; print('%d.%d' % sys.version_info[:2])"
+if ([version]$v -lt [version]"3.12") { throw ".buildenv has Python $v, StellarHub needs 3.12+: delete the .buildenv folder and run this again" }
 Step "pip" $py (@("-m", "pip", "install", "--disable-pip-version-check") + $pins)
 
 # 1b. PyInstaller with its own bootloader, compiled here from the sdist (see the header)
