@@ -128,13 +128,15 @@ class ElevatedRoutines(unittest.TestCase):
         self.assertFalse([c for c in run.call_args_list if c[0] and c[0][0][:1] == ["cmd.exe"]])
 
     def test_command_output_in_this_windows_code_page_is_readable(self):
-        oem = "Configuración".encode("oem")  # what cmd.exe prints on a Spanish (or any Western) Windows
+        # what cmd.exe prints on a Spanish (or any Western) Windows; a Cyrillic or Japanese console page has no "ó"
+        word = next(w for w in ("Configuración", "Конфигурация", "構成") if w.encode("oem", "replace").decode("oem") == w)
+        oem = word.encode("oem")
         job = self.Job()
         with mock.patch.object(autopilot, "_admin", return_value=False), \
                 mock.patch.object(autopilot.subprocess, "run", return_value=types.SimpleNamespace(stdout=oem, returncode=0)):
             out = autopilot._act(job, {"k": "cmd", "p": {"cmd": "echo x"}}, {"after": {}})
         self.assertEqual(out[0], "ok")
-        self.assertEqual(job.lines, ["Configuración"])
+        self.assertEqual(job.lines, [word])
 
 
 if __name__ == "__main__":

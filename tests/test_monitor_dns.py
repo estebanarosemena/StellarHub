@@ -75,11 +75,14 @@ class PartialDnsChange(unittest.TestCase):
             self.addCleanup(p.stop)
 
     def test_second_command_fails_error_keeps_the_backup(self):
-        answers = iter([mock.Mock(returncode=0, stdout=b""), mock.Mock(returncode=1, stdout="El parámetro es incorrecto.".encode("cp850"))])
+        # netsh's message as this console prints it: Spanish on a Western code page, Russian on a Cyrillic one
+        msg, word = next((m, w) for m, w in (("El parámetro es incorrecto.", "parámetro"), ("Параметр задан неверно.", "Параметр"))
+                         if m.encode("oem", "replace").decode("oem") == m)
+        answers = iter([mock.Mock(returncode=0, stdout=b""), mock.Mock(returncode=1, stdout=msg.encode("oem"))])
         with mock.patch.object(M, "ps_json", side_effect=fake_ps(True, "", ["192.168.1.1"])),                 mock.patch.object(M.subprocess, "run", side_effect=lambda c, **k: next(answers)):
             r = M.set_dns("Wi-Fi", "cloudflare")
         self.assertFalse(r["ok"])
-        self.assertIn("parámetro", r["error"])   # the console's own code page, not a fixed cp850 guess
+        self.assertIn(word, r["error"])   # the console's own code page, not a fixed cp850 guess
         self.assertTrue(os.path.isfile(os.path.join(self.tmp, r["backup"] + ".json")))
 
     def test_stuck_ipconfig_is_not_a_failure(self):
