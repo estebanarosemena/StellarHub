@@ -343,7 +343,7 @@ class Scanner:
             with os.scandir(d) as it:
                 for e in it:
                     try:
-                        if e.is_symlink() or e.is_junction():
+                        if e.is_symlink() or paths.entry_is_junction(e):
                             isd = os.path.isdir(e.path)
                         else:
                             isd = e.is_dir(follow_symlinks=False)

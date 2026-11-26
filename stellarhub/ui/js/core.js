@@ -815,7 +815,7 @@ const chartKit = (() => {
   let cc = null;
   const col = () => cc || (cc = (() => { const cs = getComputedStyle(document.documentElement), o = {}; ['line', 'faint', 'mute', 'ink', 'deep'].forEach(k => { o[k] = cs.getPropertyValue('--' + k).trim(); }); return o; })());
   on('look', () => { cc = null; setTimeout(() => { cc = null; }, 60); });
-  const FONT = '11.5px Onest, "Microsoft YaHei UI", system-ui, sans-serif';
+  const FONT = '11.5px ' + (SH.i18n && SH.i18n.lang === 'ru' ? 'Onest, "Segoe UI", system-ui, sans-serif' : 'Onest, "Microsoft YaHei UI", system-ui, sans-serif');
   const alpha = (c, a) => `color-mix(in srgb, ${c} ${Math.round(a * 100)}%, transparent)`;
   return {
     FONT, xpad: 17,

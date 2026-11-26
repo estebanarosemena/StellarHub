@@ -758,7 +758,7 @@ function renderClean(el) {
     <div class="cl-list">${cols.map(col => `<div class="cl-col">${col.map(g => `<div class="cl-g" data-asm><div class="cl-gh"><button class="check grp" data-ga="${esc(g)}" aria-label="${esc(t('Select all in {group}', { group: g }))}">${ic('check')}</button><span>${esc(g)}</span><em data-g="${esc(g)}"></em></div>${DB.clean.filter(c => c.g === g).map(c => `
       <div class="cl-it${c.rows && c.id === 'user_temp' ? ' open' : ''}" data-id="${c.id}">
         <div class="cl-row"><button class="check" aria-label="${esc(c.label)}">${ic('check')}</button>
-          <div class="rt"><b>${esc(c.label)}${c.busy ? ` <span class="chip warn">${t('Open')}</span>` : ''}${c.admin && !state.admin ? ` <span class="chip">${t('Administrator')}</span>` : ''}</b><span>${esc(c.desc)}</span></div>
+          <div class="rt"><b>${esc(c.label)}${c.busy ? ` <span class="chip warn">${tc('Open')}</span>` : ''}${c.admin && !state.admin ? ` <span class="chip">${t('Administrator')}</span>` : ''}</b><span>${esc(c.desc)}</span></div>
           <span class="cl-size"></span><button class="iconbtn cl-x" aria-label="${t('Show details')}">${ic('chevd')}</button></div>
         <div class="cl-det"><div><div class="cl-det-in">${detHTML(c)}</div></div></div>
         <div class="cl-prog"><span></span></div></div>`).join('')}</div>`).join('')}</div>`).join('')}</div></div>`;

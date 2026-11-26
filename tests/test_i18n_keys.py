@@ -10,7 +10,7 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UI = os.path.join(ROOT, "stellarhub", "ui")
-LANGS = ["es", "pt", "it", "fr", "zh", "ja"]
+LANGS = ["es", "pt", "it", "fr", "zh", "ja", "ru"]
 STR = r"""('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|`(?:[^`\\$]|\\.|\$(?!\{))*`)"""
 ESC = {"n": "\n", "'": "'", '"': '"', "`": "`", "\\": "\\", "t": "\t"}
 
@@ -125,6 +125,20 @@ class Keys(unittest.TestCase):
                 if v and (PH(key) != PH(v) or TAGS(key) != TAGS(v)):
                     bad.append(k)
             self.assertEqual(bad, [], lang)
+
+    def test_every_language_has_flag_and_engine_code(self):
+        """Every language in i18n.js has an SVG flag in shell.js and a code in stellarhub/i18n.py."""
+        from stellarhub import i18n as py_i18n
+        with open(os.path.join(UI, "js", "i18n.js"), encoding="utf-8") as fh:
+            i18n_js = fh.read()
+        with open(os.path.join(UI, "js", "shell.js"), encoding="utf-8") as fh:
+            shell_js = fh.read()
+        m_langs = re.search(r"const LANGS = \[(.*?)\];", i18n_js, re.S)
+        js_codes = re.findall(r"\['([a-z]{2})'", m_langs.group(1))
+        m_flags = re.search(r"const FLAGS = \{(.*?)\n\};", shell_js, re.S)
+        flag_codes = re.findall(r"^\s*([a-z]{2}):\s*\(\)\s*=>", m_flags.group(1), re.M)
+        self.assertEqual(js_codes, list(py_i18n.CODES))
+        self.assertEqual(sorted(flag_codes), sorted(js_codes))
 
 
 if __name__ == "__main__":

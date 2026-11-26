@@ -166,7 +166,7 @@ def _render(m, translate=True):
         return tc("autopilot", str(m)) if translate else str(m)
     if "n1" in m:
         s = f"{float(m['n1']):.1f}"
-        return s.replace(".", ",") if translate and language() in ("es", "pt", "it", "fr") else s
+        return s.replace(".", ",") if translate and language() in ("es", "pt", "it", "fr", "ru") else s
     if "wd" in m:
         d = _DAYS[int(m["wd"]) % 7]
         return tc("autopilot", d) if translate else d

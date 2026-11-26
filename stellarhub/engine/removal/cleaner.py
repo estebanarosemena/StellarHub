@@ -169,7 +169,7 @@ def _list_dir(cur, grace, now, collect):
         for e in it:
             try:
                 if e.is_dir(follow_symlinks=False):
-                    if not e.is_junction() and not e.is_symlink():
+                    if not paths.entry_is_junction(e) and not e.is_symlink():
                         subdirs.append(e.path)
                         newest = max(newest, e.stat(follow_symlinks=False).st_mtime)
                     continue
@@ -213,18 +213,19 @@ def _walk(dirs, grace, collect=False, workers=WALK_WORKERS, stats=None, cancel=N
                 if not work:
                     break
                 cur = work.pop()
-            if cancel and cancel():
-                subs, f, s, fl, nw = [], 0, 0, [], 0.0
-            else:
-                subs, f, s, fl, nw = _list_dir(cur, grace, now, collect)
-            files += f
-            size += s
-            newest = max(newest, nw)
-            mine += fl
-            with cond:
-                work.extend(subs)
-                state["pending"] += len(subs) - 1
-                cond.notify_all()
+            subs, f, s, fl, nw = [], 0, 0, [], 0.0
+            try:
+                if not (cancel and cancel()):
+                    subs, f, s, fl, nw = _list_dir(cur, grace, now, collect)
+            finally:
+                files += f
+                size += s
+                newest = max(newest, nw)
+                mine += fl
+                with cond:
+                    work.extend(subs)
+                    state["pending"] += len(subs) - 1
+                    cond.notify_all()
         with lock:
             state["files"] += files
             state["size"] += size
@@ -526,7 +527,7 @@ def temp_entries(root, days=TEMP_GRACE_DAYS, exclude=(), in_use=None, cancel=Non
             st = e.stat(follow_symlinks=False)
         except OSError:
             continue
-        is_link = bool(getattr(st, "st_file_attributes", 0) & 0x400) or e.is_symlink() or e.is_junction()
+        is_link = bool(getattr(st, "st_file_attributes", 0) & 0x400) or e.is_symlink() or paths.entry_is_junction(e)
         if is_link:
             rows.append({"name": e.name, "path": e.path, "kind": "link", "size": 0, "files": 0,
                          "newest": st.st_mtime, "status": "link", "reason": tr("Link to another folder: never followed")})

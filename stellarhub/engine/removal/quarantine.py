@@ -15,6 +15,7 @@ import os
 import re
 import shutil
 import stat
+import sys
 import time
 import winreg
 
@@ -69,7 +70,7 @@ def _rmtree(path, tries=6):
     import time
     for i in range(tries):
         try:
-            shutil.rmtree(path, onexc=_make_writable)
+            shutil.rmtree(path, **({"onexc" if sys.version_info >= (3, 12) else "onerror": _make_writable}))
             return
         except FileNotFoundError:
             return
