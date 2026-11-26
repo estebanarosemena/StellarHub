@@ -284,7 +284,9 @@ class Tray:
             Item(L("Turn on administrator mode"), lambda i, it: self.to_admin(), visible=lambda it: not a.info()["admin"]),
             Item(L("Settings"), lambda i, it: (a.show_main(), a._js("SH.go('settings')"))),
             Menu.SEPARATOR,
-            Item(L("Quit StellarHub"), lambda i, it: a.quit()),
+            # its own thread: quit() may ask "still running, quit anyway?" in a message box, and a box opened inside
+            # the menu's handler on the tray thread took no clicks, and froze this menu until it was answered
+            Item(L("Quit StellarHub"), lambda i, it: threading.Thread(target=a.quit, name="tray-quit").start()),
         )
         self.icon = _crisp_icon_class(pystray.Icon)("StellarHub", icon_image(), "StellarHub", menu)
         threading.Thread(target=self.icon.run, daemon=True, name="tray").start()
