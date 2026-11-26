@@ -30,7 +30,7 @@ SH.module({
 
 - A tab can be hidden by a condition: a third item in its `SH.MODS` entry, `['registry', 'Registry', () => !!SH.state.settings.registryCleaner]`, or `when` on a tab object a module declares itself. While it returns false there is no tab button (`hidden`), no palette entry and `#mod/tab`, `setTab` and `go(id, { tab })` ignore it; its panel is still built but never shown, and `*` walks only the visible tabs. The shell re-checks every condition when any setting changes (`SH.on('setting')`) and after import or reset, and moves off a tab that just went away. Palette actions (`SH.actions.add`) take the same `when`. Modules must not show or run anything for a hidden tab (no badges, no scans, no palette actions).
 - `.tab` is `position:absolute; inset:0; overflow:auto`. For a full-screen layout with its own internal scrolling, add the `fill` class to the tab's `el`.
-- Compact layout: below 1100 x 700 CSS px (`SH.zoomRule.compact`, js/zoom.js) shell.js sets `html[data-layout=scroll]`
+- Compact layout: below 1100 x 700 CSS px (`SH.zoomRule.compact`, js/zoom.js), shell.js sets `html[data-layout=scroll]`
   (`"fit"` otherwise, `SH.layout`, event `layout`). The `.view` then scrolls as one page and `.mod` (Home: `.home-grid`)
   is at least as tall as in a 760 px window (`--fit-h`), so a tab's fit-to-height layout keeps its room and nothing is
   clipped; the page ends with `--dockspace` free so the last row scrolls clear of the dock. A module needs no code for
