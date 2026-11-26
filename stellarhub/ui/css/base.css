@@ -36,6 +36,8 @@
 }
 /* Japanese: Japanese glyph shapes for kanji (Microsoft YaHei draws them the Chinese way) */
 :root:lang(ja){--display:'UnbZero','Unbounded','Yu Gothic UI','Meiryo UI',system-ui,sans-serif; --text:'Onest','Yu Gothic UI','Meiryo UI',system-ui,sans-serif}
+/* Russian: Segoe UI renders Cyrillic cleanly instead of falling back to Microsoft YaHei's wide CJK-proportioned Cyrillic */
+:root:lang(ru){--display:'UnbZero','Unbounded','Segoe UI',system-ui,sans-serif; --text:'Onest','Segoe UI',system-ui,sans-serif}
 html[data-theme=dusk]{
   --void:#111A2F; --deep:#18233D; --raise:rgba(185,208,250,.06); --raise2:rgba(185,208,250,.11); --raise3:rgba(185,208,250,.16);
   --line:rgba(190,212,250,.14); --line2:rgba(190,212,250,.26); --ink:#EEF2F9; --mute:#A6B2C8; --faint:#8794AF;

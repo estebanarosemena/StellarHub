@@ -224,6 +224,17 @@ class TempCleanerSafety(unittest.TestCase):
         rows = cleaner.temp_entries(long_root, 7, in_use={cleaner._norm(os.path.join(short_root, "busy")): "x.exe"})
         self.assertEqual(next(r for r in rows if r["name"] == "busy")["status"], "in_use")
 
+    def test_walk_does_not_deadlock_on_unexpected_error(self):
+        import threading
+        done = threading.Event()
+        def run():
+            with mock.patch.object(cleaner, "_list_dir", side_effect=RuntimeError("boom")):
+                cleaner._walk([self.root], grace=0, workers=2)
+            done.set()
+        t = threading.Thread(target=run, daemon=True)
+        t.start()
+        self.assertTrue(done.wait(timeout=3.0), "_walk deadlocked when _list_dir raised an unexpected exception")
+
 
 if __name__ == "__main__":
     unittest.main()

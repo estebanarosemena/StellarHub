@@ -80,7 +80,8 @@ class WingetLanguages(unittest.TestCase):
               "Git                      Git.Git            2.50.0  2.51.0     winget\n2 mises à niveau disponibles.\n")
         de = fr.replace("Nom ", "Name").replace("Disponible", "Verfügbar ").replace("Source", "Quelle")
         zh = "名称  ID       版本    可用    源\n" + "-" * 40 + "\nGit   Git.Git  2.50.0  2.51.0  winget\n1 升级可用。\n"
-        for text in (fr, de, zh):
+        ru = "Имя   ИД       Версия  Доступно Источник\n" + "-" * 40 + "\nGit   Git.Git  2.50.0  2.51.0   winget\nДоступно обновлений: 1.\n"
+        for text in (fr, de, zh, ru):
             rows = u.parse_table(text)
             self.assertEqual(len(rows), 1, text)
             self.assertEqual((rows[0]["name"], rows[0]["id"], rows[0]["available"], rows[0]["source"]), ("Git", "Git.Git", "2.51.0", "winget"))
@@ -109,8 +110,9 @@ class Defender(unittest.TestCase):
         self.assertEqual(self.update(0, "ok\n"), "done")
 
     def test_running_mode_in_other_languages(self):
-        for mode in ("Normal", "ejecución normal", "Normale", "EDR Block Mode"):
+        for mode in ("Normal", "ejecución normal", "Normale", "EDR Block Mode", "Обычный режим"):
             self.assertTrue(u.defender_running(mode), mode)
         for mode in ("", None, "Passive Mode", "SxS Passive Mode", "Modo pasivo", "Modalità passiva", "Mode passif",
-                     "Passiver Modus", "Not running", "No se está ejecutando", "Non in esecuzione"):
+                     "Passiver Modus", "Not running", "No se está ejecutando", "Non in esecuzione",
+                     "Пассивный режим", "Не выполняется", "Отключено"):
             self.assertFalse(u.defender_running(mode), mode)

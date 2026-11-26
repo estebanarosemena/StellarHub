@@ -227,12 +227,12 @@ _ID_LIKE = re.compile(r"^(ARP\\|MSIX\\|[0-9A-Z]{12}$|\S+\.\S+)", re.I)
 
 # column headers in the languages winget prints them in (it follows the Windows display language)
 _HEADERS = {
-    "name": {"name", "nombre", "nom", "nome", "名称", "名稱", "名前", "이름"},
-    "id": {"id", "identificador", "identifiant", "identificatore", "kennung", "標識碼"},
-    "version": {"version", "versión", "versão", "versione", "版本", "バージョン", "버전"},
+    "name": {"name", "nombre", "nom", "nome", "名称", "名稱", "名前", "이름", "имя"},
+    "id": {"id", "identificador", "identifiant", "identificatore", "kennung", "標識碼", "ид", "идентификатор"},
+    "version": {"version", "versión", "versão", "versione", "版本", "バージョン", "버전", "версия"},
     "available": {"available", "disponible", "disponível", "disponibile", "verfügbar", "可用", "利用可能", "사용 가능", "доступно"},
     "source": {"source", "origen", "fuente", "fonte", "origine", "quelle", "源", "ソース", "원본", "источник"},
-    "match": {"match", "coincidencia", "correspondance", "corrispondenza", "correspondência", "übereinstimmung", "匹配"},
+    "match": {"match", "coincidencia", "correspondance", "corrispondenza", "correspondência", "übereinstimmung", "匹配", "совпадение"},
 }
 
 
@@ -520,7 +520,7 @@ def defender_running(mode):
     ("ejecución normal", "Modo pasivo", "No se está ejecutando"...): any mode counts except a passive or not running
     one, in the languages StellarHub speaks (a Spanish "Modo pasivo" used to count as on: only English was checked)."""
     low = str(mode or "").strip().lower()
-    return bool(low) and not re.search(r"pass?i[vf]|\bnot?\b|\bnon\b|\bpas\b|nicht|未|停止|無効|关闭", low)
+    return bool(low) and not re.search(r"pass?i[vf]|\bnot?\b|\bnon\b|\bpas\b|nicht|未|停止|無効|关闭|пассив|\bне\b|отключ|останов", low)
 
 
 def _pretty_title(t):

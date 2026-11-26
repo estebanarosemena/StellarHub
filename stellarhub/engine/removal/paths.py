@@ -314,6 +314,13 @@ def folder_size(path, limit_files=None):
 
 
 _REPARSE, _DIRECTORY = 0x400, 0x10
+_JUNCTION_TAG = 0xA0000003  # IO_REPARSE_TAG_MOUNT_POINT
+
+
+def entry_is_junction(e):
+    """DirEntry.is_junction() (Python 3.12+), falling back to the reparse tag on Python 3.11."""
+    fn = getattr(e, "is_junction", None)
+    return fn() if fn is not None else getattr(e.stat(follow_symlinks=False), "st_reparse_tag", 0) == _JUNCTION_TAG
 
 
 def walk_nolinks(root):

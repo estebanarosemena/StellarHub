@@ -460,8 +460,9 @@ const FLAGS = {
   fr: () => '<rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#EF4135"/>',
   zh: () => `<rect width="30" height="20" fill="#EE1C25"/><path d="${STAR(5.5, 5.5, 3.2)}" fill="#FFDE00"/>${[[11, 2.2, .6], [13, 4.4, 1.2], [13, 7.4, .2], [11, 9.4, .9]].map(([x, y, r]) => `<path d="${STAR(x, y, 1.05, r)}" fill="#FFDE00"/>`).join('')}`,
   ja: () => '<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#BC002D"/>',
+  ru: () => '<rect width="30" height="20" fill="#D52B1E"/><rect width="30" height="13.34" fill="#0039A6"/><rect width="30" height="6.67" fill="#fff"/>',
 };
-const flag = code => code === 'auto' ? `<span class="flag auto">${ic('globe')}</span>` : `<span class="flag"><svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS[code]()}</svg></span>`;
+const flag = code => code === 'auto' || !FLAGS[code] ? `<span class="flag auto">${ic('globe')}</span>` : `<span class="flag"><svg viewBox="0 0 30 20" aria-hidden="true">${FLAGS[code]()}</svg></span>`;
 function langPicker() {
   const L = SH.i18n, cur = S().language || 'auto';
   const sys = L.LANGS.find(l => l[0] === L.systemLang()) || L.LANGS[0];

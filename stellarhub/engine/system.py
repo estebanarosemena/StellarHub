@@ -203,7 +203,7 @@ def _numfmt(v):
     """A number the engine measured, written with the interface language's decimal separator."""
     from ..i18n import language
     txt = f"{v['num']:.{v.get('d', 1)}f}"
-    return txt.replace(".", ",") if language() in ("es", "pt", "it", "fr") else txt
+    return txt.replace(".", ",") if language() in ("es", "pt", "it", "fr", "ru") else txt
 
 
 def _tv(x):
