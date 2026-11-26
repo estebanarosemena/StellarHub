@@ -120,7 +120,7 @@ largest files, **duplicates**, and comparisons with earlier scans to see what gr
 
 ### ↯ Super Optimizer
 Cleanup of temp files and caches, **startup** apps, services, Windows **repairs** (SFC, DISM, chkdsk,
-network, Windows Update…) with live output, and performance settings (power plan, visual effects, game mode,
+network, Windows Update…) with live output, performance settings (power plan, visual effects, game mode,
 hardware-accelerated GPU scheduling), and **Debloat**: remove preinstalled apps and turn off ads, suggestions,
 Widgets, Copilot and Bing in Start search. Everything backed up first and undoable.
 A **registry cleaner** exists too, but it is off by default (Microsoft doesn't usually recommend them, and Windows doesn't
