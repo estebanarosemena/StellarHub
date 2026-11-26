@@ -43,7 +43,7 @@ stays, its details get tightened.
 
 ## Minor observations
 
-- Home's "Right now" list is spread with `space-around`: on 1080 p there are ~60 px voids between rows; rhythm is
+- Home's "Right now" list is spread with `space-around`: on 1080p there are ~60 px voids between rows; rhythm is
   loose while the rest of the screen is dense.
 - Hover lifts that move the hovered element itself (`.vcard`, `.tool`, `.vit`, `.pend`) slide out from under the
   pointer near the edge.
