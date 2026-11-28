@@ -213,7 +213,7 @@ function lidCanvas() {
   g.fillStyle = 'rgba(214,224,240,.5)'; g.font = FONT(600, 20, 'Unbounded'); g.textAlign = 'center'; g.letterSpacing = '8px'; g.fillText('TUF GAMING', cx + 4, cy + s * 1.9);
   return c;
 }
-function pcbCanvas(w, d, label = 'FX608JPR  MAIN BOARD  REV 1.0') {
+function pcbCanvas(w, d, label = SH.t('FX608JPR  MAIN BOARD  REV 1.0')) {
   const W = 1024, H = Math.round(W * d / w), c = mk(W, H), g = c.getContext('2d');
   g.fillStyle = '#0b1f24'; g.fillRect(0, 0, W, H);
   let s = 5; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -229,7 +229,8 @@ function pcbCanvas(w, d, label = 'FX608JPR  MAIN BOARD  REV 1.0') {
   return c;
 }
 function labelCanvas(w, d, base, draw) { const W = 512, H = Math.max(16, Math.round(W * d / w)), c = mk(W, H), g = c.getContext('2d'); g.fillStyle = base; g.fillRect(0, 0, W, H); draw(g, W, H); return c; }
-const compTitle = (id, d) => { const c = ctxRef && ctxRef.PC && (ctxRef.PC.components || []).find(x => x.id === id); return (c && c.title) || d; };
+const compTitle = (id, d) => { const c = ctxRef && ctxRef.PC && (ctxRef.PC.components || []).find(x => x.id === id); return SH.localizeUnits((c && c.title) || d); };
+const cellText = (volts, n) => `${volts} ${SH.unit('V')} · ${SH.t('{n} cells', { n })}`;
 function kbCanvases(keys) {
   const W = 2048, H = Math.round(W * (KD + .1) / (KW + .1)), sc = W / (KW + .1);
   const X = x => (x - KX0 + .05) * sc, Z = z => (z - KZ0 + .05) * sc;
@@ -321,16 +322,16 @@ function drawScreen() {
     g.fillStyle = 'rgba(160,190,240,.13)'; g.beginPath(); g.roundRect(478, y + 33, 150, 6, 3); g.fill();
     if (used != null && total) { g.fillStyle = b; g.beginPath(); g.roundRect(478, y + 33, Math.max(6, 150 * clamp(used / total, 0, 1)), 6, 3); g.fill(); }
   };
-  bar(178, SH.t('Memory'), fin(v.ram), fin(v.ramTotal), 'GB'); bar(246, SH.t('Video memory'), fin(v.vram), fin(v.vramTotal), 'GB'); bar(314, SH.t('Drive C:'), fin(v.diskUsed), fin(v.diskTotal), 'GB');
-  g.textAlign = 'left'; g.fillStyle = 'rgba(232,237,246,.5)'; g.font = FONT(500, 14); g.fillText(fin(v.cpuFreq) != null ? `CPU ${SH.fmt1(v.cpuFreq)} GHz` : 'CPU —', 478, 404);
+  bar(178, SH.t('Memory'), fin(v.ram), fin(v.ramTotal), SH.unit('GB')); bar(246, SH.t('Video memory'), fin(v.vram), fin(v.vramTotal), SH.unit('GB')); bar(314, SH.t('Drive C:'), fin(v.diskUsed), fin(v.diskTotal), SH.unit('GB'));
+  g.textAlign = 'left'; g.fillStyle = 'rgba(232,237,246,.5)'; g.font = FONT(500, 14); g.fillText(fin(v.cpuFreq) != null ? `CPU ${SH.fmt1(v.cpuFreq)} ${SH.unit('GHz')}` : 'CPU —', 478, 404);
   // right card: fans, network, battery
   const row = (y, label, val) => { g.textAlign = 'left'; g.fillStyle = 'rgba(232,237,246,.6)'; g.font = FONT(500, 16); g.fillText(label, 704, y); g.textAlign = 'right'; g.fillStyle = '#f2f5fb'; g.font = FONT(600, 18); g.fillText(val, 952, y); };
   const fc = fin(v.fanCpu), fg = fin(v.fanGpu), dn = fin(v.down), up = fin(v.up), bt = fin(v.battery), pw = fin(v.gpuPower);
-  row(184, SH.t('CPU fan'), fc == null ? '—' : SH.fmtInt(fc) + ' rpm');
+  row(184, SH.t('CPU fan'), fc == null ? '—' : SH.fmtInt(fc) + ' ' + SH.unit('rpm'));
   row(226, SH.t('GPU fan'), fg == null ? '—' : Math.round(fg) + ' %');
-  row(268, SH.t('GPU power'), pw == null ? '—' : Math.round(pw) + ' W');
-  row(310, SH.t('Download'), dn == null ? '—' : SH.fmt1(dn) + ' Mb/s');
-  row(352, SH.t('Upload'), up == null ? '—' : SH.fmt1(up) + ' Mb/s');
+  row(268, SH.t('GPU power'), pw == null ? '—' : Math.round(pw) + ' ' + SH.unit('W'));
+  row(310, SH.t('Download'), dn == null ? '—' : SH.fmt1(dn) + ' ' + SH.unit('Mb/s'));
+  row(352, SH.t('Upload'), up == null ? '—' : SH.fmt1(up) + ' ' + SH.unit('Mb/s'));
   if (ctxRef && ctxRef.PC && ['desktop', 'aio', 'mini'].includes(ctxRef.PC.type)) row(394, SH.t('Uptime'), fin(v.uptime) == null ? '—' : SH.fmtUptime(v.uptime)); // no battery
   else row(394, SH.t('Battery'), bt == null ? '—' : Math.round(bt) + ' %' + (v.charging ? '  ⚡' : ''));
   // history chart
@@ -536,7 +537,7 @@ function build(canvas) {
   // battery: 90 Wh pack wrapped in black film with a printed label
   addPart('battery', at(loft(2.7, .9, .04, [[SEAM, 0], [SEAM + .058, 0], [SEAM + .062, .004]], 4, 2), 0, 0, .66), [partMat(0x14181f, .6, .15, canvasTex(labelCanvas(2.7, .9, '#262d3a', (g, W, H) => {
     g.strokeStyle = 'rgba(255,255,255,.07)'; g.lineWidth = 2; for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(W * i / 4, 6); g.lineTo(W * i / 4, H - 6); g.stroke(); }
-    g.fillStyle = 'rgba(230,236,245,.85)'; g.fillRect(W * .36, H * .3, W * .28, H * .4); g.fillStyle = '#14181f'; g.font = FONT(700, 15); g.fillText('Li-ion  ' + compTitle('battery', '90 Wh').split(',')[0], W * .38, H * .48); g.font = FONT(500, 10); g.fillText('15.48 V  ·  4 cells', W * .38, H * .62);
+    g.fillStyle = 'rgba(230,236,245,.85)'; g.fillRect(W * .36, H * .3, W * .28, H * .4); g.fillStyle = '#14181f'; g.font = FONT(700, 15); g.fillText(SH.t('Li-ion') + '  ' + compTitle('battery', '90 Wh').split(',')[0], W * .38, H * .48); g.font = FONT(500, 10); g.fillText(cellText(15.48, 4), W * .38, H * .62);
   }))), mat.under, mat.under]);
   // speakers at the front corners
   const spk = [box(.24, .05, .36, -1.55, SEAM + .025, .7), box(.24, .05, .36, 1.55, SEAM + .025, .7)];
@@ -1033,7 +1034,7 @@ function thinInternals(R0, inner, L, mats) {
     const wh = fin((SH.tele.v || {}).batteryDesignWh);
     const label = pm(0, .6, .15, canvasTex(labelCanvas(bw, bd, '#262d3a', (g, W, H) => {
       g.strokeStyle = 'rgba(255,255,255,.07)'; g.lineWidth = 2; for (let i = 1; i < 3; i++) { g.beginPath(); g.moveTo(W * i / 3, 6); g.lineTo(W * i / 3, H - 6); g.stroke(); }
-      g.fillStyle = 'rgba(230,236,245,.85)'; g.fillRect(W * .3, H * .3, W * .4, H * .4); g.fillStyle = '#14181f'; g.font = FONT(700, Math.min(H * .11, W * .034)); g.fillText('Li-ion polymer' + (wh ? `  ${Math.round(wh)} Wh` : ''), W * .32, H * .47); g.font = FONT(500, Math.min(H * .08, W * .026)); g.fillText(L.cells || '15.48 V  ·  4 cells', W * .32, H * .62);
+      g.fillStyle = 'rgba(230,236,245,.85)'; g.fillRect(W * .3, H * .3, W * .4, H * .4); g.fillStyle = '#14181f'; g.font = FONT(700, Math.min(H * .11, W * .034)); g.fillText(SH.t('Li-ion polymer') + (wh ? `  ${Math.round(wh)} ${SH.unit('Wh')}` : ''), W * .32, H * .47); g.font = FONT(500, Math.min(H * .08, W * .026)); g.fillText(L.cells || cellText(15.48, 4), W * .32, H * .62);
     }), true, R0.aniso));
     L.battery.forEach(([x, z, w, d], i) => { const m = new THREE.Mesh(at(loft(w, d, .03, [[y0, 0], [y0 + L.batH, 0], [y0 + L.batH + .004, .004]], 4, 2), x, 0, z), [label, mats.under, mats.under]); inner.add(m); if (!i) parts.battery = m; });
   }
@@ -1141,7 +1142,7 @@ function handheldBackCanvas(b) {
   g.translate(W, 0); g.scale(-1, 1);   // the back is seen from behind: its print is drawn mirrored
   g.fillStyle = 'rgba(220,228,240,.28)'; g.font = FONT(500, 15); g.textAlign = 'center';
   const code = (ctxRef && ctxRef.PC && (ctxRef.PC.code || ctxRef.PC.model)) || '';
-  g.fillText(code, X(0), Y(.28)); g.fillText('Input 20V ⎓ 5A', X(0), Y(.33));
+  g.fillText(code, X(0), Y(.28)); g.fillText(SH.t('Input') + ` 20${SH.unit('V')} ⎓ 5${SH.unit('A')}`, X(0), Y(.33));
   return c;
 }
 function buildHandheld(canvas) {
@@ -1241,9 +1242,9 @@ function buildHandheld(canvas) {
      an M.2 2230 SSD, the Wi-Fi module and its antenna leads, the battery, speakers and rumble motors in the grips */
   const inner = R0.inner; dev.add(inner);
   const tray = new THREE.ShapeGeometry(shape, 24); tray.rotateX(-Math.PI / 2); tray.translate(0, .001, 0); inner.add(new THREE.Mesh(tray, mat.tray));
-  const L = { y0: .004, board: [0, -.22, 1.56, .7], label: 'HANDHELD MAIN BOARD  REV 2.1', soc: [0, -.3, .34, .3],
+  const L = { y0: .004, board: [0, -.22, 1.56, .7], label: SH.t('HANDHELD MAIN BOARD  REV 2.1'), soc: [0, -.3, .34, .3],
     ram: [[-.25, -.39], [-.25, -.21], [.25, -.39], [.25, -.21]], ramSize: [.11, .13], ssd: [.42, .03, .3, .2], wifi: [-.42, .03, .16, .14],
-    antenna: [[-.42, -.02], [-.7, -.1], [-1.0, -.3], [-1.12, -.45]], battery: [[0, .37, 1.3, .34]], batH: .05, cells: '7.74 V  ·  2 cells' };
+    antenna: [[-.42, -.02], [-.7, -.1], [-1.0, -.3], [-1.12, -.45]], battery: [[0, .37, 1.3, .34]], batH: .05, cells: cellText(7.74, 2) };
   const parts = thinInternals(R0, inner, L, mat);
   const blurTex = blurDisc();
   for (const s of [-1, 1]) blower(R0, inner, mat, s * .58, -.28, .14, L.y0, blurTex);
@@ -1341,9 +1342,9 @@ function buildTablet(canvas) {
   R0.shellMats = [mat.glass, mat.screen];
   // inside: board with the SoC, memory, SSD, Wi-Fi, one fan, two battery packs, speakers in the top corners
   const inner = R0.inner; dev.add(inner);
-  const L = { y0: .001, board: [.5, -.48, 1.4, .64], label: 'LOGIC BOARD  REV 1.2', soc: [.55, -.45, .32, .26],
+  const L = { y0: .001, board: [.5, -.48, 1.4, .64], label: SH.t('LOGIC BOARD  REV 1.2'), soc: [.55, -.45, .32, .26],
     ram: [[.27, -.53], [.27, -.37], [.83, -.53], [.83, -.37]], ramSize: [.13, .12], ssd: [-.15, -.55, .3, .22], wifi: [1.0, -.6, .16, .14],
-    antenna: [[1.0, -.66], [1.2, -.8], [1.3, -.9]], battery: [[-.68, .38, 1.2, .9], [.68, .38, 1.2, .9]], batH: .035, cells: '7.58 V  ·  2 cells' };
+    antenna: [[1.0, -.66], [1.2, -.8], [1.3, -.9]], battery: [[-.68, .38, 1.2, .9], [.68, .38, 1.2, .9]], batH: .035, cells: cellText(7.58, 2) };
   const parts = thinInternals(R0, inner, L, mat);
   blower(R0, inner, mat, -.55, -.5, .17, L.y0, blurDisc());
   inner.add(new THREE.Mesh(merge([-1, 1].map(s => at(loft(.3, .14, .03, [[L.y0, 0], [L.y0 + .04, 0]], 3), s * 1.25, 0, -.8))), mat.speaker));
@@ -1399,7 +1400,7 @@ function buildAio(canvas) {
   // the PC inside, on the back of the display: its own frame lies flat on the back (y = backwards, z = down)
   const fr = new THREE.Group(); fr.position.set(0, MY - .45, -.09); fr.rotation.x = -Math.PI / 2; M.add(fr);   // local y = backwards, local z = up
   const inner = R0.inner; fr.add(inner);
-  const L = { y0: .0, board: [.35, -.15, 2.2, 1.3], label: 'AIO MAIN BOARD  REV 1.0', soc: [-.2, -.25, .4, .4],
+  const L = { y0: .0, board: [.35, -.15, 2.2, 1.3], label: SH.t('AIO MAIN BOARD  REV 1.0'), soc: [-.2, -.25, .4, .4],
     ram: [[.75, -.45]], ramSize: [.72, .18], ssd: [.75, .2, .8, .22], ssdForm: 'M.2 2280  NVMe', wifi: [1.25, -.05, .22, .3],
     antenna: [[1.25, -.2], [1.6, -.7], [1.7, -.95]] };
   const parts = thinInternals(R0, inner, L, mat);
@@ -1465,7 +1466,7 @@ function buildMini(canvas) {
   R0.outline = new THREE.LineSegments(new THREE.EdgesGeometry(lidG, 30), R0.outline.material); R0.outline.visible = false; top.add(R0.outline);
   R0.shellMats = [mat.lid, mat.lidSide];
   const inner = R0.inner; B.add(inner);
-  const L = { y0: .44, board: [0, 0, 1.04, 1.04], label: 'MINI PC BOARD', soc: [-.22, -.24, .3, .28],
+  const L = { y0: .44, board: [0, 0, 1.04, 1.04], label: SH.t('MINI PC BOARD'), soc: [-.22, -.24, .3, .28],
     ram: [[0, .04], [0, .2]], ramSize: [.74, .13], ssd: [-.08, .4, .7, .18], ssdForm: 'M.2 2280  NVMe', wifi: [.4, .4, .14, .14] };
   const parts = thinInternals(R0, inner, L, mat);
   blower(R0, inner, mat, .24, -.24, .16, L.y0 + .01, blurDisc());

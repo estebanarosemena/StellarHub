@@ -81,6 +81,9 @@
   "and {n} more": "ほか {n} 件",
   "Not now": "後で",
   "Update": "更新",
+  "download too large": "download too large",
+  "the update has no StellarHub.exe": "the update has no StellarHub.exe",
+  "unsafe path in the update: {name}": "unsafe path in the update: {name}",
   "Everything is up to date.": "すべて最新の状態です。",
   "Update all": "すべて更新",
   "Select {name}": "{name} を選択",
@@ -319,5 +322,6 @@
   "Check for updates to see which Store apps have a new version.": "更新を確認して、新しいバージョンがある Store アプリを調べましょう。",
   "Not checked yet. Check now searches Windows Update; it takes a minute or two.": "まだチェックしていません。[今すぐ確認] で Windows Update を検索します。1、2 分かかります。",
   "Check now looks for new versions of Python and its packages, Node.js and npm packages, Git and WSL. Nothing is installed until you choose.": "[今すぐ確認] では Python とそのパッケージ、Node.js と npm パッケージ、Git、WSL の新しいバージョンを探します。選ぶまで何もインストールされません。",
-  "Check for updates to see which shared components (.NET, Visual C++, WebView2…) have a new version.": "更新を確認して、新しいバージョンがある共有コンポーネント (.NET、Visual C++、WebView2…) を調べましょう。"
+  "Check for updates to see which shared components (.NET, Visual C++, WebView2…) have a new version.": "更新を確認して、新しいバージョンがある共有コンポーネント (.NET、Visual C++、WebView2…) を調べましょう。",
+  "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast.": "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast."
 }

@@ -12,6 +12,7 @@ const SH = window.SH = window.SH || {};
 const LANGS = [
   // code, name in its own language, name in English, locale for numbers and dates
   ['en', 'English', 'English', 'en-US'],
+  ['ru', 'Русский', 'Russian', 'ru-RU'],
   ['es', 'Español', 'Spanish', 'es-ES'],
   ['pt', 'Português (Brasil)', 'Portuguese (Brazil)', 'pt-BR'],
   ['it', 'Italiano', 'Italian', 'it-IT'],
@@ -59,7 +60,21 @@ if (lang !== 'en') {
   }
 }
 
-const fill = (s, vars) => vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars && vars[k] !== undefined && vars[k] !== null) ? vars[k] : m) : s;
+function ruPluralIndex(value) {
+  const n = Math.abs(Math.trunc(Number(value) || 0));
+  if (n % 100 >= 11 && n % 100 <= 14) return 2;
+  if (n % 10 === 1) return 0;
+  if (n % 10 >= 2 && n % 10 <= 4) return 1;
+  return 2;
+}
+const fill = (s, vars) => {
+  if (s.includes('|')) {
+    const forms = s.split('|');
+    const key = vars && Object.keys(vars).find(k => /^n\d*$/.test(k) && Number.isFinite(+vars[k]));
+    s = forms[ruPluralIndex(key ? vars[key] : 0)] || forms[0];
+  }
+  return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars && vars[k] !== undefined && vars[k] !== null) ? vars[k] : m) : s;
+};
 /* t('Text') or t('{n} of {total} keys', { n, total }). Unknown text comes back in English, never empty. */
 function t(s, vars) {
   if (s === undefined || s === null) return '';
@@ -90,9 +105,14 @@ function tc(ctx, s, vars) {
   return dict[k] !== undefined && dict[k] !== '' ? fill(dict[k], vars) : t(s, vars);
 }
 
+const unit = s => dict['unit|' + s] || s;
+const localizeUnits = s => String(s ?? '').replace(/\b(?:(?:[KMGT]B|[KMGT]b|B)(?:\/s)?|[KMGT]bps|[kKMGT]?Hz|MT\/s|W|Wh|rpm|fps|ns|µs|ms|min|[hs])\b/g, u => unit(u));
+
 document.documentElement.lang = lang;
 SH.t = t;
 SH.tc = tc;
+SH.unit = unit;
+SH.localizeUnits = localizeUnits;
 SH.i18n = {
   lang, pref, LANGS, CODES, systemLang, resolve,
   locale: (LANGS.find(l => l[0] === lang) || LANGS[0])[3],

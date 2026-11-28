@@ -5,6 +5,7 @@
 (() => {
 const { $, $$, state, Spring, EASE, anim, tickers, ic, esc, fmt1 } = SH;
 const t = SH.t;
+const U = SH.unit;
 const ID = 'updater';
 SH.icons.add({
   arrow: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
@@ -152,7 +153,7 @@ function dn(name) {
   return n.replace(/\s+[-–]\s+v?\d+(?:\.\d+){1,}\S*(?=\s*(?:\(|$))/, '').trim() || n;
 }
 const cv = v => String(v == null ? '' : v).replace(/^\s*[<>~=]+\s*/, '');   /* winget writes "> 1.8.10" when it cannot be sure */
-const mb = v => v == null || isNaN(v) ? '—' : v >= 1024 ? fmt1(v / 1024) + ' GB' : (v < 10 ? fmt1(v) : Math.round(v)) + ' MB';
+const mb = v => v == null || isNaN(v) ? '—' : v >= 1024 ? fmt1(v / 1024) + ' ' + U('GB') : (v < 10 ? fmt1(v) : Math.round(v)) + ' ' + U('MB');
 const CAT_COL = { security: 'var(--warn)', windows: 'var(--accent2)', store: 'var(--accent2)', runtimes: 'var(--accent)', dev: 'var(--ok)', apps: 'var(--accent2)' };
 const PAL = ['#6FA8FF', '#8EA2FF', '#7FE0B4', '#FFB27A', '#F4C26B', '#A8D672', '#FF8FB1', '#5FD3C6', '#C9D4E8'];
 const colorFor = s => PAL[[...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % PAL.length];
@@ -949,7 +950,7 @@ function renderSchedule(el) {
         <div class="u-field"><span>${t('Frequency')}</span><div class="seg" data-sseg="freq"><span class="ind"></span>${[['day', t('Every day')], ['week', t('Every week')], ['month', t('Every month')]].map(([v, l]) => `<button data-v="${v}"${s.freq === v ? ' class="on"' : ''}>${l}</button>`).join('')}</div></div>
         <div class="u-days${s.freq === 'week' ? ' on' : ''}"><div><div class="u-field"><span>${t('Day')}</span><div class="seg" data-sseg="day"><span class="ind"></span>${DAYS.map((d, i) => `<button data-v="${i}"${s.day === i ? ' class="on"' : ''} title="${esc(d)}">${esc(DAYS2[i])}</button>`).join('')}</div></div></div></div>
         <div class="u-field u-win24"><span>${t('Time window')}</span><div class="u-range">
-          <div class="u-24"><span class="u-band"></span>${[0, 6, 12, 18, 24].map(h => `<i style="left:${h / 24 * 100}%">${String(h).padStart(2, '0')} h</i>`).join('')}</div>
+          <div class="u-24"><span class="u-band"></span>${[0, 6, 12, 18, 24].map(h => `<i style="left:${h / 24 * 100}%">${String(h).padStart(2, '0')} ${U('h')}</i>`).join('')}</div>
           <div class="u-rr"><label>${t('From')}<input type="range" min="0" max="23" value="${s.from}" data-r="from"><b data-rv="from">${hh(s.from)}</b></label><label>${t('To')}<input type="range" min="1" max="24" value="${s.to}" data-r="to"><b data-rv="to">${hh(s.to)}</b></label></div>
         </div></div>
       </div>

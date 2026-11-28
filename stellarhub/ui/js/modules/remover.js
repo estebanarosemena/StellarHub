@@ -4,6 +4,7 @@
 (() => {
 const { $, $$, anim, EASE, Spring, tickers, ic, esc, fmt1 } = SH;
 const T = SH.t;
+const U = SH.unit;
 /* words that mean something else elsewhere in the app: looked up as "remover|word" first */
 const TC = s => SH.tc('remover', s);
 /* two keys for singular and plural: PL(n, '{n} item', '{n} items', { more }) */
@@ -167,7 +168,7 @@ const totalGB = () => PROGRAMS.reduce((a, p) => a + p.mb, 0) / 1024;
 /* short date in the interface language; Chinese and Japanese use the compact numeric form (2026/10/31) so it fits the columns */
 const DATE_OPTS = SH.i18n && (SH.i18n.lang === 'zh' || SH.i18n.lang === 'ja') ? { year: 'numeric', month: 'numeric', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' };
 const fmtDate = d => d ? d.toLocaleDateString((SH.i18n && SH.i18n.locale) || 'en-US', DATE_OPTS) : '—';
-const fmtMB = mb => !mb ? '—' : mb >= 1024 ? `${fmt1(mb / 1024)} GB` : `${Math.max(1, Math.round(mb))} MB`;
+const fmtMB = mb => !mb ? '—' : mb >= 1024 ? `${fmt1(mb / 1024)} ${U('GB')}` : `${Math.max(1, Math.round(mb))} ${U('MB')}`;
 const NOW = () => (REAL() ? new Date() : TODAY);
 const daysSince = d => d ? Math.round((NOW() - d) / 864e5) : Infinity;
 

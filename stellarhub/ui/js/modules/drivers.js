@@ -5,6 +5,7 @@
 (() => {
 const { $, $$, anim, EASE, Spring, tickers, ic, esc, fmt1 } = SH;
 const t = SH.t;
+const U = SH.unit;
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const TODAY = new Date();
 let REAL = false; SH.apiReady.then(a => { REAL = !!a; });
@@ -326,7 +327,7 @@ function renderUpdates(el, ctx) {
     const d = u.d; const vtxt = u.isNew ? t('New for this PC, version {ver}', { ver: esc(u.ver) }) : t('{from} to {to}', { from: esc(d.version), to: esc(u.ver) });
     return `<div class="du-row du-cols${st.sel.has(u.id) ? ' sel' : ''}" data-u="${u.id}">${CHECK.replace('class="check"', `class="check${st.sel.has(u.id) ? ' on' : ''}"`)}
       <div class="nm"><span class="ri">${ic(d.icon)}</span><div style="min-width:0"><b title="${esc(u.title || d.name)}">${esc(d.name)}</b><span>${vtxt}</span></div></div>
-      <span class="c">${esc(d.clsName)}<br><span class="faint">${esc(d.provider)}</span></span><span class="c">${fmtDateCol(u.date)}</span><span class="c">${fmt1(u.mb)} MB</span>
+      <span class="c">${esc(d.clsName)}<br><span class="faint">${esc(d.provider)}</span></span><span class="c">${fmtDateCol(u.date)}</span><span class="c">${fmt1(u.mb)} ${U('MB')}</span>
       <span>${u.reboot ? `<span class="chip warn">${t('Needs a restart')}</span>` : `<span class="chip">${t('No restart')}</span>`}</span></div>`;
   }
   function drawList(animate, never) {
@@ -405,7 +406,7 @@ function renderUpdates(el, ctx) {
     $('#duRadar', el).classList.add('on');
     /* elapsed time for the whole installation (restore point, asking Windows Update again, each driver) */
     const stopTime = clock(s => { $('#duTime', el).textContent = secsText(s); });
-    const steps = [{ id: 'rp', name: t('Restore point'), sub: t('To go back if something goes wrong') }, ...todo.map(u => ({ id: u.id, name: u.d.name, sub: `${fmt1(u.mb)} MB`, u }))];
+    const steps = [{ id: 'rp', name: t('Restore point'), sub: t('To go back if something goes wrong') }, ...todo.map(u => ({ id: u.id, name: u.d.name, sub: `${fmt1(u.mb)} ${U('MB')}`, u }))];
     list.innerHTML = `<div class="du-inst">${steps.map(s => `<div class="du-step" data-s="${s.id}"><span class="st">${ic(s.id === 'rp' ? 'restore' : 'download')}</span><div><b>${esc(s.name)}</b><span class="sub">${esc(s.sub)}</span></div><div class="bar"><span style="transform:scaleX(0)"></span></div><span class="res"><span class="chip">${t('Queued')}</span></span></div>`).join('')}</div>`;
     stagger($$('.du-step', list), 40, 50);
     const springs = new Map(steps.map(s => [s.id, new Spring(0, 120, 18)]));
@@ -736,7 +737,7 @@ async function renderBackup(el) {
   /* for the administrator relaunch (SH.resume 'drivers.backup' / 'drivers.restoreBackup' / 'drivers.storeRemove') */
   el._db = { ready: () => listed && storeListed && !op, backup: path => LIST.findIndex(b => b && b.path === path),
     hasCopy: inf => OLD.some(o => o.inf === inf), selectCopies(infs) { dsSel.clear(); infs.forEach(i => dsSel.add(i)); $$('.ds-row', ds).forEach(r => { const v = dsSel.has(r.dataset.inf); r.classList.toggle('sel', v); $('.check', r).classList.toggle('on', v); }); dsSync(); } };
-  const rowHTML = (b, i) => `<div class="db-row db-cols" data-i="${i}"><b style="font-weight:500">${fmtDateCol(b.date)}</b><span class="muted">${b.count}</span><span class="muted">${fmt1(b.gb)} GB</span><span class="p" title="${esc(b.path)}">${esc(b.path)}</span><span class="a"><button class="btn sm sec" data-a="restore">${ic('restore')}${t('Restore')}</button><button class="btn sm ghost" data-a="open" title="${t('Open folder')}">${ic('folder')}</button><button class="btn sm ghost" data-a="del" title="${t('Send to the Recycle Bin')}">${ic('trash')}</button></span></div>`;
+  const rowHTML = (b, i) => `<div class="db-row db-cols" data-i="${i}"><b style="font-weight:500">${fmtDateCol(b.date)}</b><span class="muted">${b.count}</span><span class="muted">${fmt1(b.gb)} ${U('GB')}</span><span class="p" title="${esc(b.path)}">${esc(b.path)}</span><span class="a"><button class="btn sm sec" data-a="restore">${ic('restore')}${t('Restore')}</button><button class="btn sm ghost" data-a="open" title="${t('Open folder')}">${ic('folder')}</button><button class="btn sm ghost" data-a="del" title="${t('Send to the Recycle Bin')}">${ic('trash')}</button></span></div>`;
   async function loadList(anim_) {
     try { LIST = [...((await DATA.backups()) || [])]; } catch { LIST = []; }  // a copy: deleting marks entries without shifting the rows' indexes
     rows.innerHTML = LIST.length ? LIST.map(rowHTML).join('') : emptyBox(t('No backups yet'), t('Create the first one with the button above. It takes a minute or two.'), 'download');
@@ -788,7 +789,7 @@ async function renderBackup(el) {
   const ds = $('#dsRows', el), dsSel = new Set(); let OLD = [];
   const dsRow = o => `<div class="ds-row${dsSel.has(o.inf) ? ' sel' : ''}" data-inf="${esc(o.inf)}">${CHECK.replace('class="check"', `class="check${dsSel.has(o.inf) ? ' on' : ''}"`)}
     <span class="ri">${ic(clsInfo(o.cls)[1])}</span><span class="rt"><b>${esc(o.provider)} · ${esc(o.name)}</b><span>${t('{version} ({date}), replaced by {newer} ({newerDate})', { version: esc(o.version), date: fmtDateS(o.date), newer: esc(o.newer), newerDate: fmtDateS(o.newerDate) })}</span></span>
-    <span class="muted ds-mb">${o.mb >= 1 ? fmt1(o.mb) + ' MB' : '<1 MB'}</span></div>`;
+    <span class="muted ds-mb">${o.mb >= 1 ? fmt1(o.mb) + ' ' + U('MB') : `<1 ${U('MB')}`}</span></div>`;
   const dsSync = () => {
     const mb = OLD.filter(o => dsSel.has(o.inf)).reduce((s, o) => s + o.mb, 0);
     $('#dsSum', el).textContent = dsSel.size ? t('{n} selected · {mb} MB', { n: dsSel.size, mb: fmt1(mb) }) : t('Nothing selected');

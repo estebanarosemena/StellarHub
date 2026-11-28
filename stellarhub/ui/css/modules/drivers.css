@@ -25,7 +25,7 @@ html[data-int=min] #v-drivers .du-radar.on .sweep{animation-duration:4s}
 #v-drivers .du-time{font-size:var(--fs-sm);color:var(--faint);min-width:44px;text-align:right}
 
 #v-drivers .du-list{padding:10px 8px}
-#v-drivers .du-cols{display:grid;grid-template-columns:28px minmax(0,2.4fr) minmax(0,1.1fr) 112px 80px 140px;align-items:center;gap:var(--sp-md)}
+#v-drivers .du-cols{display:grid;grid-template-columns:28px minmax(0,2.4fr) minmax(0,1.1fr) 112px 80px 172px;align-items:center;gap:var(--sp-md)}
 #v-drivers .tbl-head.du-cols{padding:6px 12px 10px}
 #v-drivers .du-row{padding:11px 12px;border-radius:var(--r-m);cursor:pointer;transition:background-color calc(150ms*var(--f))}
 #v-drivers .du-row:hover{background:var(--raise2)}

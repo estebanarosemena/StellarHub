@@ -5,6 +5,7 @@
 (() => {
 const { $, $$, state, Spring, EASE, anim, tickers, ic, esc, fmt1, fmtInt } = SH;
 const T = SH.t; // translations (t is used for other things in this file)
+const unit = SH.unit;
 const ID = 'storage';
 const wp = s => esc(s).replace(/\\/g, '\\<wbr>'); // paths: only break after each backslash
 const MB = 1024 ** 2, GB = 1024 ** 3;
@@ -665,7 +666,7 @@ function renderInfo() {
       ? `<h4>${esc(targetName())}</h4><div class="st-ib"><div class="big">${fmt1(disk.used / GB)}<small>${T('GB used')}</small></div><span class="muted">${T('of {total} GB. {free} GB free.', { total: fmtInt(disk.total / GB), free: fmtInt(disk.free / GB) })}</span></div>
       <div class="st-used"><span style="--v:${(disk.used / disk.total).toFixed(4)}"></span></div>`
       : `<h4>${T('Scanned folder')}</h4><div class="st-ih"><span class="st-it" style="--c:${T_(n.dom).c}">${ic('folder')}</span><div><b>${esc(targetName())}</b><span class="faint">${wp(I ? I.target : '')}</span></div></div>
-      <div class="st-ib"><div class="big">${fmtB(n.size).replace(/ (\w+)$/, '<small>$1</small>')}</div><span class="muted">${T('{pct} of the drive, which has {free} GB free.', { pct: pct(n.size / disk.total), free: fmtInt(disk.free / GB) })}</span></div>`)
+      <div class="st-ib"><div class="big">${fmtB(n.size).replace(/ (\S+)$/, '<small>$1</small>')}</div><span class="muted">${T('{pct} of the drive, which has {free} GB free.', { pct: pct(n.size / disk.total), free: fmtInt(disk.free / GB) })}</span></div>`)
       + `<dl class="st-dl"><dt>${T('Files')}</dt><dd>${fmtInt(n.fc)}</dd><dt>${T('Folders')}</dt><dd>${fmtInt(n.dirs)}</dd><dt>${T('Scanned')}</dt><dd>${I ? (I.secs < .1 ? T('{when}, in under 0.1 s', { when: whenText(I.when) }) : T('{when}, in {secs} s', { when: whenText(I.when), secs: fmt1(I.secs) })) : whenText()}</dd>
       ${I && I.method ? `<dt>${T('Read from')}</dt><dd title="${I.method === 'mft' ? T('The NTFS master file table was read directly (admin mode): every file in seconds. Hard links count once.') : T('Every folder was listed one by one. Admin mode on an NTFS drive reads the file table instead, which is much faster.')}">${I.method === 'mft' ? T('NTFS file table') : T('Folder scan')}</dd>` : ''}
       <dt>${T('Sizes')}</dt><dd title="${T("The map uses each file's real size, as Explorer shows it under Size. Space on disk can differ: small files fill whole clusters, compressed and sparse files take less.")}">${T('File size')}${I && I.alloc ? ` · ${T('{n} GB on disk', { n: fmt1(I.alloc / GB) })}` : ''}</dd>
@@ -675,7 +676,7 @@ function renderInfo() {
     const t = typeOf(n); const base = n === TM.cur ? (n.parent || n) : TM.cur;
     box.innerHTML = `<h4>${n === TM.cur ? T('Current folder') : n.dir ? T('Folder') : n.group ? T('Several files') : T('File')}</h4>
       <div class="st-ih"><span class="st-it" style="--c:${T_(t).c}">${ic(n.dir ? 'folder' : 'file')}</span><div><b>${esc(n.name)}</b><span class="faint">${wp(pathOf(n.parent || n))}</span></div></div>
-      <div class="st-ib"><div class="big">${fmtB(n.size).replace(/ (\w+)$/, '<small>$1</small>')}</div><span class="muted">${base !== n && !(base === TM.root && disk.whole) ? T('{pct} of {name}, {dpct} of the drive', { pct: pct(n.size / base.size), name: esc(base === TM.root ? targetName() : base.name), dpct: pct(n.size / disk.total) }) : T('{pct} of the drive', { pct: pct(n.size / disk.total) })}</span></div>
+      <div class="st-ib"><div class="big">${fmtB(n.size).replace(/ (\S+)$/, '<small>$1</small>')}</div><span class="muted">${base !== n && !(base === TM.root && disk.whole) ? T('{pct} of {name}, {dpct} of the drive', { pct: pct(n.size / base.size), name: esc(base === TM.root ? targetName() : base.name), dpct: pct(n.size / disk.total) }) : T('{pct} of the drive', { pct: pct(n.size / disk.total) })}</span></div>
       <div class="bar" style="margin:10px 0 2px"><span style="transform:scaleX(${Math.max(.004, n.size / base.size).toFixed(4)});background:${T_(t).c}"></span></div>
       <dl class="st-dl">${n.dir || n.group ? `<dt>${T('Files')}</dt><dd>${fmtInt(n.fc)}</dd><dt>${T('Mostly')}</dt><dd>${T_(n.dir ? n.dom : t).n}</dd>` : `<dt>${T('Type')}</dt><dd>${T_(t).n}</dd>`}<dt>${T('Modified')}</dt><dd>${n.mtime ? fmtDate(n.mtime) : '—'}</dd></dl>
       <div class="st-ia">${n.dir && n !== TM.cur ? `<button class="btn sm sec" data-info="enter">${ic('zoom')}${T('Zoom in')}</button>` : ''}<button class="btn sm ghost" data-info="open">${ic('folder')}${T('Show in Explorer')}</button>${n.dir ? `<button class="btn sm ghost" data-info="tree">${ic('list')}${T('View in Folders')}</button>` : ''}</div>`;
@@ -1217,13 +1218,13 @@ async function renderCompare(el) {
         <div class="tbl-head st-dh"><span>${T('Folder')}</span><span class="st-axis"><span>${T('Shrank')}</span><span>${T('Grew')}</span></span><span>${T('Change')}</span></div>
         <div class="st-scroll">${CH.length ? CH.map(([p, d, f]) => `<div class="st-dr"><div class="st-bn"><b>${esc(p.split('\\').filter(Boolean).pop())}</b><span class="faint">${wp(p)}</span></div>
           <span class="st-dv"><span class="${d > 0 ? 'up' : 'down'}" style="--v:${(Math.abs(d) / mx).toFixed(4)}"></span></span>
-          <span class="st-dn ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '−'}${fmt1(Math.abs(d))} GB<small>${T('{n} files', { n: (f >= 0 ? '+' : '−') + fmtInt(Math.abs(f)) })}</small></span></div>`).join('') : SH.emptyState({ art: 'ok', small: true, title: T('Almost nothing changed'), text: T('No folder changed by more than 64 MB.') })}</div></div>
+          <span class="st-dn ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '−'}${fmt1(Math.abs(d))} ${unit('GB')}<small>${T('{n} files', { n: (f >= 0 ? '+' : '−') + fmtInt(Math.abs(f)) })}</small></span></div>`).join('') : SH.emptyState({ art: 'ok', small: true, title: T('Almost nothing changed'), text: T('No folder changed by more than 64 MB.') })}</div></div>
     </div>
     <div class="st-cr">
       <div class="pan st-hist" data-asm><h4>${T('Space used')} <em>${T('{n} scans', { n: H.length })}</em></h4>
         <svg viewBox="0 0 ${W} ${HH}" class="st-spark"><path class="area" d="${path} L${px(H.length - 1)},${HH} L${px(0)},${HH} Z"/><path class="ln" d="${path}"/>${H.map(([, v], i) => `<circle cx="${px(i)}" cy="${py(v)}" r="${i === H.length - 1 ? 4 : 2.5}"/>`).join('')}</svg>
         <div class="st-hx">${H.slice(-6).map(([d, v]) => `<span><b>${v}</b>${d}</span>`).join('')}</div></div>
-      <div class="pan st-new st-fp" data-asm><h4>${T('New large files')} <em>${T('{n} since the last scan', { n: NB.length })}</em></h4><div class="rows st-scroll">${NB.length ? NB.map(([n, g, p, d]) => `<div class="row">${badge(n, p + '\\' + n, T_(EXT2T[extOf(n)] || 'other').c)}<div class="rt"><b>${esc(n)}</b><span>${wp(p)}, ${d}</span></div><span class="st-bs">${fmt1(g)} GB</span></div>`).join('') : SH.emptyState({ art: 'ok', small: true, title: T('None'), text: T('No new file over 300 MB showed up.') })}</div></div>
+      <div class="pan st-new st-fp" data-asm><h4>${T('New large files')} <em>${T('{n} since the last scan', { n: NB.length })}</em></h4><div class="rows st-scroll">${NB.length ? NB.map(([n, g, p, d]) => `<div class="row">${badge(n, p + '\\' + n, T_(EXT2T[extOf(n)] || 'other').c)}<div class="rt"><b>${esc(n)}</b><span>${wp(p)}, ${d}</span></div><span class="st-bs">${fmt1(g)} ${unit('GB')}</span></div>`).join('') : SH.emptyState({ art: 'ok', small: true, title: T('None'), text: T('No new file over 300 MB showed up.') })}</div></div>
     </div></div>`;
   SH.assemble(el, 40); paintIcons(el);
   const ln = $('.st-spark .ln', el); const L = ln.getTotalLength(); ln.style.strokeDasharray = `${L} ${L}`; anim(ln, [{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { d: 1200, delay: 200 });
@@ -1237,7 +1238,7 @@ let actEl = null;
 function drivesHTML() {
   const ds = ST.real ? ST.drives : [{ root: 'C:\\', letter: 'C:', total: 953 * GB, free: 361 * GB, system: true }];
   const custom = ST.target && !/^[A-Za-z]:\\$/.test(ST.target);
-  return `<div class="seg st-drv"><span class="ind"></span>${ds.map(d => `<button data-drv="${esc(d.root)}"${!custom && ST.target === d.root || (!ST.real && d.system) ? ' class="on"' : ''} title="${T('{free} free of {total}', { free: fmtB(d.free), total: fmtB(d.total) })}${d.label ? ', ' + esc(d.label) : ''}">${ic('drive')}${esc(d.letter)} ${fmtInt(d.total / GB)} GB</button>`).join('')}
+  return `<div class="seg st-drv"><span class="ind"></span>${ds.map(d => `<button data-drv="${esc(d.root)}"${!custom && ST.target === d.root || (!ST.real && d.system) ? ' class="on"' : ''} title="${T('{free} free of {total}', { free: fmtB(d.free), total: fmtB(d.total) })}${d.label ? ', ' + esc(d.label) : ''}">${ic('drive')}${esc(d.letter)} ${fmtInt(d.total / GB)} ${unit('GB')}</button>`).join('')}
     <button data-drv="pick"${custom ? ' class="on"' : ''} title="${custom ? esc(ST.target) : T('Choose a folder')}">${ic('folder')}${custom ? esc(ST.target.split('\\').filter(Boolean).pop()) : T('Other folder')}</button></div>
     <button class="btn pri" data-scan>${ic('search')}${T('Scan')}</button>`;
 }

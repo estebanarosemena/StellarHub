@@ -301,7 +301,7 @@ requestAnimationFrame(loop);
 const LOCALE = (window.SH && SH.i18n && SH.i18n.locale) || 'en-US';
 const fmt1 = v => (+v).toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const fmtInt = v => Math.round(+v).toLocaleString(LOCALE);
-function fmtBytes(b) { const u = ['B', 'KB', 'MB', 'GB', 'TB']; let i = 0; while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; } return (i ? fmt1(b) : Math.round(b)) + ' ' + u[i]; }
+function fmtBytes(b) { const u = ['B', 'KB', 'MB', 'GB', 'TB']; let i = 0; while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; } return (i ? fmt1(b) : Math.round(b)) + ' ' + SH.unit(u[i]); }
 function countUp(el, to, d = 900, dec = 0) {
   if (state.settings.countUp === false) { el.textContent = dec ? fmt1(to) : fmtInt(to); el.dataset.v = to; return; }
   const t0 = performance.now(), dur = Math.max(1, d * motion()); const from = +(el.dataset.v || 0);
@@ -537,6 +537,10 @@ const PC = {
     { id: 'sys', name: t('System'), title: 'Windows 11 Pro 25H2', rows: [['Build', '26200'], ['BIOS', 'FX608JPR.312']] },
   ],
 };
+for (const c of PC.components) {
+  c.title = SH.localizeUnits(c.title);
+  c.rows = c.rows.map(([a, b]) => [a, SH.localizeUnits(b)]);
+}
 
 /* ---------- modules: master list (the dock, the palette and the views come from here) ---------- */
 const MODS0 = [

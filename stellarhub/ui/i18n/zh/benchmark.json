@@ -1,6 +1,7 @@
 {
  "Processor": "处理器",
  "Graphics": "显卡",
+ "Games": "Games",
  "Memory": "内存",
  "Disk": "磁盘",
  "Full benchmark": "完整测试",
@@ -97,6 +98,7 @@
  "Test cancelled.": "测试已取消。",
  "The test stopped: {msg}": "测试已停止：{msg}",
  "Score": "得分",
+ "StellarHub Score": "StellarHub 评分",
  "Last run: {date}": "上次测试：{date}",
  "(part of a full benchmark)": "（属于完整测试）",
  "{core}: {x}× a single thread": "{core}：单线程的 {x}×",

@@ -9,7 +9,7 @@ const ok = x => x !== null && x !== undefined && !Number.isNaN(x);
 const VITALS = [
   ['cpu', t('Processor'), v => [ok(v.cpu) ? Math.round(v.cpu) : '—', '%'], v => (v.cpu || 0) / 100, v => v.cpu > 90],
   ['gpu', t('Graphics'), v => [ok(v.gpu) ? Math.round(v.gpu) : '—', '%'], v => (v.gpu || 0) / 100, v => v.gpu > 95],
-  ['ram', t('Memory'), v => [ok(v.ram) ? SH.fmt1(v.ram) : '—', 'GB'], v => ok(v.ram) && v.ramTotal ? v.ram / v.ramTotal : 0, v => v.ramTotal && v.ram / v.ramTotal > .9],
+  ['ram', t('Memory'), v => [ok(v.ram) ? SH.fmt1(v.ram) : '—', SH.unit('GB')], v => ok(v.ram) && v.ramTotal ? v.ram / v.ramTotal : 0, v => v.ramTotal && v.ram / v.ramTotal > .9],
   ['battery', t('Battery'), v => [ok(v.battery) ? Math.round(v.battery) : '—', '%'], v => (v.battery || 0) / 100, v => !v.charging && v.battery < 15],
 ];
 

@@ -5,6 +5,7 @@
 const { $, $$, state, Spring, EASE, anim, tickers, ic, esc, fmt1, fmtInt } = SH;
 /* SH.t is aliased as _t here because t is the tab id everywhere in this file */
 const _t = SH.t;
+const U = SH.unit;
 /* short words whose meaning here may differ elsewhere (Power = watts, Read = disk reads...): key "monitor|Word" */
 const _tc = (s, vars) => SH.tc('monitor', s, vars);
 const LOCALE = (SH.i18n && SH.i18n.locale) || 'en-US';
@@ -128,7 +129,7 @@ const row = (id, label) => ((comp(id).rows || []).find(r => label[0].test(r[0]) 
 const LBL = { cores: [/^(cores|n\u00facleos)$/i, 'Cores'], threads: [/^(threads|hilos)$/i, 'Threads'], base: [/^(base|frecuencia base)/i, 'Base clock'], igpu: [/^(integrated|integrada)/i, 'Integrated'],
   driver: [/^driver/i, 'Driver'], speed: [/^(speed|velocidad)$/i, 'Speed'], maker: [/^(manufacturer|maker|fabricante)$/i, 'Manufacturer'] };
 /* spec rows come from the engine with English labels: translated only when displayed */
-const specRows = rows => (rows || []).map(([a, b]) => `<dt>${esc(_t(a))}</dt><dd>${esc(b)}</dd>`).join('');
+const specRows = rows => (rows || []).map(([a, b]) => `<dt>${esc(_t(a))}</dt><dd>${esc(SH.localizeUnits(b))}</dd>`).join('');
 async function eng(fn_, ...a) { try { return await SH.engine('monitor', fn_, ...a); } catch (e) { console.error(e); return null; } }
 const cache = {};   /* slow engine results: requested once per tab visit */
 async function load(k, fn_, ...a) { if (cache[k] && Date.now() - cache[k].t < 30000) return cache[k].d; const d = await eng(fn_, ...a); if (d !== undefined) cache[k] = { t: Date.now(), d }; return d; }
@@ -237,11 +238,11 @@ function topList(t, el, key, n, fmt, max) {
     });
   });
 }
-const mb = v => v >= 1024 ? fmt1(v / 1024) + ' GB' : fmtInt(v) + ' MB';
+const mb = v => v >= 1024 ? fmt1(v / 1024) + ' ' + U('GB') : fmtInt(v) + ' ' + U('MB');
 /* the percent sign follows the language: "9,3 %" (es, fr: non-breaking space) but "9.3%" (en, pt, it, zh) */
 const PCT_SP = { es: '\u00a0', fr: '\u202f' }[SH.i18n && SH.i18n.lang] || '';
 const pct = v => (v < 10 ? fmt1(v) : fmtInt(v)) + PCT_SP + '%';
-function upt(s) { if (SH.fmtUptime) return SH.fmtUptime(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h >= 48 ? _t('{d} days {h} h', { d: Math.floor(h / 24), h: h % 24 }) : h ? `${h} h ${m} min` : `${m} min`; }
+function upt(s) { return SH.fmtUptime(s); }
 
 /* ---------- HTML pieces ---------- */
 const head = (title, em, go) => `<h4>${go ? `<button class="goto" data-goto="${go}">${title}${chev}</button>` : title}${em ? `<em>${em}</em>` : ''}</h4>`;
@@ -274,11 +275,11 @@ R.overview = (el, t) => {
   el.innerHTML = `<div class="ov">
     <div class="pan p-cpu" data-asm>${head(_t('Processor'), esc(short(comp('cpu').title)), 'cpu')}
       <div class="top3"><div class="big"><span id="oCpu">0</span><small>%</small></div>
-        <div class="meta"><b id="oFreq">–</b> GHz<br>${_t('{n} threads', { n: sp.threads })}</div><div class="meta"><b id="oCt">–</b> °C<br>${_t('temperature')}</div></div>
+        <div class="meta"><b id="oFreq">–</b> ${U('GHz')}<br>${_t('{n} threads', { n: sp.threads })}</div><div class="meta"><b id="oCt">–</b> °C<br>${_t('temperature')}</div></div>
       ${cv('oCpuCh')}<div class="threads" id="oThr" style="grid-template-columns:repeat(${sp.threads},1fr)">${'<i><b></b></i>'.repeat(sp.threads)}</div></div>
     <div class="pan p-gpu" data-asm>${head(_t('Graphics'), esc(short(gpuTitle())), 'gpu')}
       <div class="gbody">${gauge('oG')}<div class="gstats">
-        <div class="s"><b><span id="oGt">–</span> °C</b>${_t('temperature')}</div><div class="s"><b><span id="oGp">–</span> W</b>${_tc('power')}</div>
+        <div class="s"><b><span id="oGt">–</span> °C</b>${_t('temperature')}</div><div class="s"><b><span id="oGp">–</span> ${U('W')}</b>${_tc('power')}</div>
         <div class="s"><b>${_t('{used} of {total} GB', { used: '<span id="oVr">–</span>', total: '<span id="oVrT">–</span>' })}</b>${_t('video memory')}<div class="bar acc"><span id="oVrB"></span></div></div></div></div></div>
     <div class="pan p-ram" data-asm>${head(_t('Memory'), esc(comp('ram').title), 'memory')}
       <div class="big"><span id="oRam">–</span><small>${_t('of {total} GB', { total: '<span id="oRamT">–</span>' })}</small></div><div class="bar" style="margin-top:12px"><span id="oRamB"></span></div>
@@ -298,9 +299,9 @@ R.overview = (el, t) => {
   num(t, S(el, 'oRam'), v => v.ram, fmt1); num(t, S(el, 'oRamT'), v => v.ramTotal); bar(t, S(el, 'oRamB'), v => v.ram / v.ramTotal);
   topList(t, S(el, 'oRamTop'), 'ram', 3, mb);
   num(t, S(el, 'oDn'), v => v.down, fmt1); num(t, S(el, 'oUp'), v => v.up, fmt1);
-  chart(t, S(el, 'oNetCh'), { max: 'auto', min: 20, unit: ' Mb/s', dec: 1, series: [{ key: 'down', col: 'accent2', fill: true, label: _tc('Download') }, { key: 'up', col: 'accent', label: _tc('Upload') }] });
+  chart(t, S(el, 'oNetCh'), { max: 'auto', min: 20, unit: ' ' + U('Mb/s'), dec: 1, series: [{ key: 'down', col: 'accent2', fill: true, label: _tc('Download') }, { key: 'up', col: 'accent', label: _tc('Upload') }] });
   num(t, S(el, 'oRd'), v => v.diskRead); num(t, S(el, 'oWr'), v => v.diskWrite);
-  chart(t, S(el, 'oDiskCh'), { max: 'auto', min: 100, unit: ' MB/s', series: [{ key: 'diskRead', col: 'accent2', fill: true, label: _tc('Read') }, { key: 'diskWrite', col: 'accent', label: _tc('Write') }] });
+  chart(t, S(el, 'oDiskCh'), { max: 'auto', min: 100, unit: ' ' + U('MB/s'), series: [{ key: 'diskRead', col: 'accent2', fill: true, label: _tc('Read') }, { key: 'diskWrite', col: 'accent', label: _tc('Write') }] });
 };
 
 R.cpu = (el, t) => {
@@ -311,8 +312,8 @@ R.cpu = (el, t) => {
         <div class="legend"><span><i style="background:var(--accent)"></i>${_t('usage')}</span><span class="ltemp"><i class="dash" style="border-color:var(--accent2)"></i>${_t('temperature')}</span></div></div>
       <div class="chwrap tall">${cv('cCh')}</div>${axis}</div>
     <div class="pan" data-asm>${head(_t('Status'), _t('live'))}<div class="stats">
-      ${stat(_t('Frequency'), 'cF', 'GHz', _t('base {v}', { v: esc(row('cpu', LBL.base) || '–') }))}${stat(_t('Temperature'), 'cT', '°C', '<span id="cTw"></span>')}
-      <div class="st"><span class="sl">${_t('Fan')}</span><b>${fanIc('cFan')}<span id="cFn">–</span><small>rpm</small></b><span class="ss" id="cFnW"></span></div>
+      ${stat(_t('Frequency'), 'cF', U('GHz'), _t('base {v}', { v: esc(row('cpu', LBL.base) || '–') }))}${stat(_t('Temperature'), 'cT', '°C', '<span id="cTw"></span>')}
+      <div class="st"><span class="sl">${_t('Fan')}</span><b>${fanIc('cFan')}<span id="cFn">–</span><small>${U('rpm')}</small></b><span class="ss" id="cFnW"></span></div>
       ${stat(_t('Processes'), 'cP', '', '<span id="cPh"></span>')}${stat(_t('Busy threads'), 'cHo', _t('of {n}', { n: sp.threads }), _t('above 50%'))}${stat(_t('Uptime'), 'cUp', '', _t('since the last startup'))}</div></div>
     <div class="pan wide" data-asm>${head(_t('Cores'), sp.p && sp.e ? _t('{p} performance and {e} efficient', { p: sp.p, e: sp.e }) : sp.cores ? _t('{n} cores', { n: sp.cores }) : _t('{n} cores', { n: '–' }))}
       <div class="cores">${sp.p ? `<div class="cg"><span class="cgl">${_tc('Performance')}</span><div class="pc" id="cPc"></div></div>` : ''}${sp.e ? `<div class="cg"><span class="cgl">${sp.p ? _tc('Efficient') : _t('Cores')}</span><div class="ec" id="cEc"></div></div>` : ''}</div></div>
@@ -344,7 +345,7 @@ R.gpu = (el, t) => {
     <div class="pan wide" data-asm>${head(esc(short(gpuTitle())), _t('driver {v}', { v: `<span id="gDrv">${esc(row('gpu', LBL.driver) || '–')}</span>` }))}
       <div class="gsplit">
         <div class="gl"><div class="gpuhero">${gauge('gG')}<div class="stats s4">
-          ${stat(_t('Temperature'), 'gT', '°C', '<span id="gTl"></span>')}${stat(_tc('Power'), 'gP', 'W', '')}${stat(_t('Clock'), 'gC', 'GHz', '<span id="gCm"></span>')}
+          ${stat(_t('Temperature'), 'gT', '°C', '<span id="gTl"></span>')}${stat(_tc('Power'), 'gP', U('W'), '')}${stat(_t('Clock'), 'gC', U('GHz'), '<span id="gCm"></span>')}
           <div class="st"><span class="sl">${_t('Fan')}</span><b>${fanIc('gFan')}<span id="gFn">–</span><small id="gFnU">%</small></b><span class="ss" id="gFnW"></span></div></div></div>
           <div class="vram"><span>${_t('Video memory')}</span><b>${_t('{used} of {total} GB', { used: '<span id="gV">–</span>', total: '<span id="gVT">–</span>' })}</b><div class="bar acc"><span id="gVB"></span></div></div></div>
         <div class="gr"><div class="legend"><span><i style="background:var(--accent)"></i>${_t('usage')}</span><span><i class="dash" style="border-color:var(--accent2)"></i>${_t('temperature')}</span></div>
@@ -375,7 +376,7 @@ R.gpu = (el, t) => {
     S(el, 'gDrv').textContent = gi.driver;
     if (gi.maxClock) S(el, 'gCm').textContent = _t('max {v} GHz', { v: fmt1(gi.maxClock) });
     if (gi.tlimitMargin != null) S(el, 'gTl').textContent = _t('{n} °C before throttling', { n: gi.tlimitMargin });
-    const add = [gi.pcie && [_t('Connection'), gi.pcie], gi.powerLimit && [_t('Max power'), gi.powerLimit + ' W']].filter(Boolean);
+    const add = [gi.pcie && [_t('Connection'), gi.pcie], gi.powerLimit && [_t('Max power'), gi.powerLimit + ' ' + U('W')]].filter(Boolean);
     S(el, 'gSpec').insertAdjacentHTML('beforeend', add.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join(''));
   });
 };
@@ -384,7 +385,7 @@ R.memory = (el, t) => {
   const r = comp('ram'), slots = r.slots || 0, mods = r.modules || 0;
   el.innerHTML = `<div class="grid g-mem">
     <div class="pan wide" data-asm>${head(_t('Memory in use'), _t('{v} GB usable', { v: '<span id="mTot">–</span>' }))}
-      <div class="hero"><div class="big"><span id="mU">–</span><small>GB</small></div>
+      <div class="hero"><div class="big"><span id="mU">–</span><small>${U('GB')}</small></div>
         <div class="legend"><span><i style="background:var(--accent)"></i>${_t('in use {v}', { v: '<b id="mL1"></b>' })}</span><span><i style="background:var(--accent2)"></i>${_t('cached {v}', { v: '<b id="mL2"></b>' })}</span><span><i style="background:var(--raise3)"></i>${_t('free {v}', { v: '<b id="mL3"></b>' })}</span></div></div>
       <div class="stack"><span class="s2" id="mS2"></span><span class="s1" id="mS1"></span></div>
       <div class="chwrap">${cv('mCh')}</div>${axis}</div>
@@ -394,25 +395,25 @@ R.memory = (el, t) => {
         : `<div class="slot"><div class="stick empty"></div><b>${_t('Slot {n}', { n: i + 1 })}</b><span>${_tc('Empty')}</span></div>`).join('')}</div>
       ${mods === 1 && slots > 1 ? `<p class="mnote">${_t('With a single module, memory runs in single-channel mode. A second identical module would double the bandwidth.')}</p>` : ''}</div>
     <div class="pan" data-asm>${head(_t('Details'))}<div class="stats">
-      ${stat(_tc('Committed'), 'mC', '<span id="mCl"></span>', _t('includes the page file'))}${stat(_tc('Cached'), 'mCa', 'GB')}${stat(_t('Paged pool'), 'mPp', 'MB')}${stat(_t('Non-paged pool'), 'mNp', 'MB')}${stat(_t('Speed'), 'mSp', '')}${stat(_tc('Compressed'), 'mZ', 'MB')}</div></div>
+      ${stat(_tc('Committed'), 'mC', '<span id="mCl"></span>', _t('includes the page file'))}${stat(_tc('Cached'), 'mCa', U('GB'))}${stat(_t('Paged pool'), 'mPp', U('MB'))}${stat(_t('Non-paged pool'), 'mNp', U('MB'))}${stat(_t('Speed'), 'mSp', '')}${stat(_tc('Compressed'), 'mZ', U('MB'))}</div></div>
     <div class="pan" data-asm>${head(_t('Using the most memory'))}<div class="tops" id="mTop"></div></div>
   </div>`;
   const mi = { paged: null, nonpaged: null, compressed: null, commitLimit: null };
   num(t, S(el, 'mU'), v => v.ram, fmt1); num(t, S(el, 'mTot'), v => v.ramTotal, fmt1);
-  fn(t, v => { const free = Math.max(0, (v.ramTotal || 0) - (v.ram || 0) - (v.ramCache || 0)); S(el, 'mL1').textContent = fmt1(v.ram || 0) + ' GB'; S(el, 'mL2').textContent = nil(v.ramCache) ? '—' : fmt1(v.ramCache) + ' GB'; S(el, 'mL3').textContent = fmt1(free) + ' GB';
+  fn(t, v => { const free = Math.max(0, (v.ramTotal || 0) - (v.ram || 0) - (v.ramCache || 0)); S(el, 'mL1').textContent = fmt1(v.ram || 0) + ' ' + U('GB'); S(el, 'mL2').textContent = nil(v.ramCache) ? '—' : fmt1(v.ramCache) + ' ' + U('GB'); S(el, 'mL3').textContent = fmt1(free) + ' ' + U('GB');
     S(el, 'mCl').textContent = _t('of {total} GB', { total: fmt1(v.ramCommitLimit || mi.commitLimit || 0) }); });
   bar(t, S(el, 'mS1'), v => v.ram / v.ramTotal); bar(t, S(el, 'mS2'), v => (v.ram + (v.ramCache || 0)) / v.ramTotal);
-  chart(t, S(el, 'mCh'), { max: Math.ceil(V().ramTotal || 16), unit: ' GB', dec: 1, series: [{ key: 'ram', col: 'accent', fill: true, label: _tc('In use') }] });
+  chart(t, S(el, 'mCh'), { max: Math.ceil(V().ramTotal || 16), unit: ' ' + U('GB'), dec: 1, series: [{ key: 'ram', col: 'accent', fill: true, label: _tc('In use') }] });
   num(t, S(el, 'mC'), v => v.ramCommit, fmt1); num(t, S(el, 'mCa'), v => v.ramCache, fmt1);
   num(t, S(el, 'mPp'), () => REAL() ? mi.paged : 612); num(t, S(el, 'mNp'), () => REAL() ? mi.nonpaged : 488); num(t, S(el, 'mZ'), () => REAL() ? mi.compressed : 240);
-  S(el, 'mSp').textContent = row('ram', LBL.speed) || '–';
+  S(el, 'mSp').textContent = SH.localizeUnits(row('ram', LBL.speed) || '–');
   topList(t, S(el, 'mTop'), 'ram', 6, mb);
   const poll = async () => { const d = await eng('memory_info'); if (d) { Object.assign(mi, d); if (curTab === 'memory') refresh('memory'); } };
   if (REAL()) { poll(); tab(t).poll = poll; }
 };
 
 /* ---------- disks: real SMART health and partitions ---------- */
-const gb = b => b >= 1e12 ? fmt1(b / 1e12) + ' TB' : b >= 1e9 ? fmtInt(b / 1e9) + ' GB' : fmtInt(b / 1e6) + ' MB';
+const gb = b => b >= 1e12 ? fmt1(b / 1e12) + ' ' + U('TB') : b >= 1e9 ? fmtInt(b / 1e9) + ' ' + U('GB') : fmtInt(b / 1e6) + ' ' + U('MB');
 const MOCK_DISKS = { admin: true, trim: true, physical: [{ name: 'WD PC SN5000S SDEQNSJ-1T00', media: 'SSD', bus: 'NVMe', size: 1024209543168, health: 'Healthy', fw: '34230100', temp: 41, tempMax: 70, wear: 2, hours: 1204, starts: 412, readErr: 0, writeErr: 0, smart: true }],
   volumes: [{ disk: 0, letter: 'C', type: 'Basic', size: 1023141740544, hidden: false, fs: 'NTFS', free: 382796140544 }, { disk: 0, letter: '', type: 'Recovery', size: 943718400, hidden: true, fs: 'NTFS', free: null }, { disk: 0, letter: '', type: 'System', size: 104857600, hidden: true, fs: '', free: null }] };
 R.disks = (el, t) => {
@@ -426,7 +427,7 @@ R.disks = (el, t) => {
     <div class="pan" data-asm>${head(_t('Specifications'))}<dl class="spec" id="dSpec"><dt>${_t('Model')}</dt><dd>${esc(comp('ssd').title)}</dd></dl></div>
   </div>`;
   num(t, S(el, 'dR'), v => v.diskRead); num(t, S(el, 'dW'), v => v.diskWrite);
-  chart(t, S(el, 'dCh'), { max: 'auto', min: 100, unit: ' MB/s', series: [{ key: 'diskRead', col: 'accent2', fill: true, label: _tc('Read') }, { key: 'diskWrite', col: 'accent', label: _tc('Write') }] });
+  chart(t, S(el, 'dCh'), { max: 'auto', min: 100, unit: ' ' + U('MB/s'), series: [{ key: 'diskRead', col: 'accent2', fill: true, label: _tc('Read') }, { key: 'diskWrite', col: 'accent', label: _tc('Write') }] });
   load('disks', 'disks').then(d => {
     d = d === undefined ? MOCK_DISKS : d; if (!d) { S(el, 'dHealth').innerHTML = `<p class="mnote">${_t('Could not read the disk.')}</p>`; return; }
     /* one health card per physical disk, the system disk (the one holding C:) first; volumes grouped by disk */
@@ -441,7 +442,7 @@ R.disks = (el, t) => {
       if (!x.smart) return `<div class="dcard">${title}<div class="health-big">${ring('dRing' + i, ok ? 'var(--ok)' : 'var(--warn)')}<div><b>${ok ? _t('Good') : esc(_t(x.health || 'Unknown'))}</b><span>${_t('According to Windows. SMART details need administrator mode.')}</span></div></div></div>`;
       const life = nil(x.wear) ? null : 100 - x.wear;
       return `<div class="dcard">${title}<div class="health-big">${ring('dRing' + i, ok ? 'var(--ok)' : 'var(--warn)')}<div><b>${ok ? _t('Good') : esc(_t(x.health || 'Unknown'))}</b><span>${life == null ? _t('The disk reports no errors.') : _t('{n}% of its lifespan left.', { n: life })}</span></div></div>
-      <dl class="spec">${[[_t('Life used'), nil(x.wear) ? null : x.wear + PCT_SP + '%'], [_t('Power-on hours'), nil(x.hours) ? null : fmtInt(x.hours) + ' h'], [_t('Power cycles'), nil(x.starts) ? null : fmtInt(x.starts)],
+      <dl class="spec">${[[_t('Life used'), nil(x.wear) ? null : x.wear + PCT_SP + '%'], [_t('Power-on hours'), nil(x.hours) ? null : fmtInt(x.hours) + ' ' + U('h')], [_t('Power cycles'), nil(x.starts) ? null : fmtInt(x.starts)],
         [_t('Temperature'), nil(x.temp) ? null : x.tempMax ? _t('{t} °C, max {max} °C', { t: x.temp, max: x.tempMax }) : `${x.temp} °C`], [_t('Read errors'), nil(x.readErr) ? null : fmtInt(x.readErr)], [_t('Write errors'), nil(x.writeErr) ? null : fmtInt(x.writeErr)]]
         .filter(y => y[1] != null).map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('') || `<dt>SMART</dt><dd>${_t('no manufacturer data')}</dd>`}</dl></div>`;
     };
@@ -476,7 +477,7 @@ R.network = (el, t) => {
       <div class="pair big2"><div><i style="background:var(--accent2)"></i>${_t('{v} Mb/s down', { v: '<b id="nD">–</b>' })}</div><div><i style="background:var(--accent)"></i>${_t('{v} Mb/s up', { v: '<b id="nU">–</b>' })}</div></div>
       <div class="chwrap">${cv('nCh')}</div>${axis}</div>
     <div class="pan" data-asm>${head(_t('Latency'), _t('to {ip}', { ip: '1.1.1.1' }))}
-      <div class="big"><span id="nP">–</span><small>ms</small></div><div class="chwrap sm">${cv('nPCh')}</div>
+      <div class="big"><span id="nP">–</span><small>${U('ms')}</small></div><div class="chwrap sm">${cv('nPCh')}</div>
       <div class="mini"><span>${_t('Jitter {v} ms', { v: '<b id="nJ">–</b>' })}</span><span>${_t('Min {v} ms', { v: '<b id="nMin">–</b>' })}</span></div></div>
     <div class="pan" data-asm>${head(_t('Connection'))}<div id="nConn"><div class="sk" style="height:44px"></div><div class="sk" style="height:140px;margin-top:12px"></div></div></div>
     <div class="pan" data-asm>${head(_t('DNS server'))}
@@ -489,11 +490,11 @@ R.network = (el, t) => {
     <div class="pan" data-asm>${head(_t('Using the network'), _t('open connections'))}<div class="tops" id="nTop"></div></div>
   </div>`;
   num(t, S(el, 'nD'), v => v.down, fmt1); num(t, S(el, 'nU'), v => v.up, fmt1);
-  chart(t, S(el, 'nCh'), { max: 'auto', min: 20, unit: ' Mb/s', dec: 1, series: [{ key: 'down', col: 'accent2', fill: true, label: _tc('Download') }, { key: 'up', col: 'accent', label: _tc('Upload') }] });
+  chart(t, S(el, 'nCh'), { max: 'auto', min: 20, unit: ' ' + U('Mb/s'), dec: 1, series: [{ key: 'down', col: 'accent2', fill: true, label: _tc('Download') }, { key: 'up', col: 'accent', label: _tc('Upload') }] });
   num(t, S(el, 'nP'), v => v.ping);
   fn(t, () => { const h = SH.tele.hist.ping.slice(-40).filter(x => x > 0); if (!h.length) return; const mn = Math.min(...h), avg = h.reduce((a, b) => a + b, 0) / h.length;
     S(el, 'nMin').textContent = fmtInt(mn); S(el, 'nJ').textContent = fmt1(h.reduce((a, b) => a + Math.abs(b - avg), 0) / h.length); });
-  chart(t, S(el, 'nPCh'), { max: 'auto', min: 40, unit: ' ms', grid: 3, series: [{ key: 'ping', col: 'accent2', fill: true, label: _t('Latency') }] });
+  chart(t, S(el, 'nPCh'), { max: 'auto', min: 40, unit: ' ' + U('ms'), grid: 3, series: [{ key: 'ping', col: 'accent2', fill: true, label: _t('Latency') }] });
   topList(t, S(el, 'nTop'), 'net', 5, v => _t('{n} conn.', { n: fmtInt(v) }));
   const seg = S(el, 'nDns'); let adapter = null;
   const DNSN = { auto: _t('Automatic'), cloudflare: 'Cloudflare', google: 'Google' };
@@ -506,9 +507,9 @@ R.network = (el, t) => {
     S(el, 'nAd').textContent = adapter ? short(adapter.desc) : _t('offline');
     const sig = w.signal != null ? w.signal : V().wifiSignal;
     const mask = ip => ip ? ip.replace(/^(\d+)\.\d+\.\d+\.(\d+)$/, '$1.•••.•••.$2') : '—';
-    S(el, 'nConn').innerHTML = `${w.connected ? `<div class="wifi"><div class="sig" id="nSig">${'<i></i>'.repeat(4)}</div><div><b>${esc(w.ssid)}</b><span>${sig != null ? _t('{n}% signal', { n: sig }) : 'Wi-Fi'}${w.band ? `, ${esc(w.band)}` : ''}${w.channel ? `, ${_t('channel {n}', { n: esc(w.channel) })}` : ''}</span></div></div>`
+    S(el, 'nConn').innerHTML = `${w.connected ? `<div class="wifi"><div class="sig" id="nSig">${'<i></i>'.repeat(4)}</div><div><b>${esc(w.ssid)}</b><span>${sig != null ? _t('{n}% signal', { n: sig }) : 'Wi-Fi'}${w.band ? `, ${esc(SH.localizeUnits(w.band))}` : ''}${w.channel ? `, ${_t('channel {n}', { n: esc(w.channel) })}` : ''}</span></div></div>`
       : adapter ? `<div class="wifi"><div class="ri">${ic('globe')}</div><div><b>${esc(adapter.alias)}</b><span>${_t('Wired connection')}</span></div></div>` : `<p class="mnote">${_t('No network connection.')}</p>`}
-      ${adapter ? `<dl class="spec"><dt>${_t('Adapter')}</dt><dd>${esc(adapter.desc)}</dd><dt>${_t('Link speed')}</dt><dd>${esc(adapter.speed || '—')}</dd>${w.radio ? `<dt>${_tc('Standard')}</dt><dd>${esc(w.radio)}</dd>` : ''}
+      ${adapter ? `<dl class="spec"><dt>${_t('Adapter')}</dt><dd>${esc(adapter.desc)}</dd><dt>${_t('Link speed')}</dt><dd>${esc(SH.localizeUnits(adapter.speed || '—'))}</dd>${w.radio ? `<dt>${_tc('Standard')}</dt><dd>${esc(w.radio)}</dd>` : ''}
         <dt>${_t('Local IP')}</dt><dd>${esc((adapter.ipv4 || [])[0] || '—')}</dd><dt>${_t('Gateway')}</dt><dd>${esc((adapter.gw || [])[0] || '—')}</dd>
         <dt>${_t('Public IP')}</dt><dd class="reveal"><span id="nIp">${_t('hidden')}</span><button class="iconbtn" id="nEye" title="${_t('Show or hide')}">${ic('eye')}</button></dd>
         <dt>MAC</dt><dd>${esc((adapter.mac || '').replace(/^(\w\w)-(\w\w)-(\w\w)-\w\w-\w\w-(\w\w)$/, '$1:$2:$3:••:••:$4') || '—')}</dd></dl>` : ''}`;
@@ -527,7 +528,7 @@ R.network = (el, t) => {
     /* apps with connections: the engine already groups them; in real mode they come from processes (network = connections) */
     (REAL() ? load('dns', 'dns_test', adapter && adapter.gw && adapter.gw[0]) : Promise.resolve({ router: 9.4, cloudflare: 4.1, google: 5.3 })).then(r => {
       if (!r) return; const vals = [r.router, r.cloudflare, r.google]; const best = Math.min(...vals.filter(x => x != null));
-      vals.forEach((x, i) => { S(el, 'nDv' + (i + 1)).textContent = x == null ? _t('no response') : `${fmt1(x)} ms`; const b = S(el, 'nDr' + (i + 1)); b.style.transform = `scaleX(${x == null ? 0 : Math.min(1, x / Math.max(30, best * 4)).toFixed(3)})`;
+      vals.forEach((x, i) => { S(el, 'nDv' + (i + 1)).textContent = x == null ? _t('no response') : `${fmt1(x)} ${U('ms')}`; const b = S(el, 'nDr' + (i + 1)); b.style.transform = `scaleX(${x == null ? 0 : Math.min(1, x / Math.max(30, best * 4)).toFixed(3)})`;
         b.parentElement.classList.toggle('ok', x === best); b.closest('.dnsr').classList.toggle('best', x === best); });
     });
   });
@@ -591,7 +592,7 @@ R.battery = (el, t) => {
     <div class="pan" data-asm>${head(_tc('Charge'))}
       <div class="batrow"><div class="batt"><div class="body"><span id="bF"></span></div><div class="cap"></div><svg class="i bolt" id="bBolt" viewBox="0 0 24 24"><path d="M13 2.5 4.5 13.5H12L11 21.5l8.5-11H12z"/></svg></div>
         <div><div class="big"><span id="bP">–</span><small>%</small></div><p class="muted" id="bSt">–</p></div></div>
-      <div class="stats s2">${stat(_t('Charge or discharge'), 'bW', 'W', '<span id="bWs"></span>')}${stat(_t('Time left'), 'bE', '', '<span id="bEs"></span>')}</div></div>
+      <div class="stats s2">${stat(_t('Charge or discharge'), 'bW', U('W'), '<span id="bWs"></span>')}${stat(_t('Time left'), 'bE', '', '<span id="bEs"></span>')}</div></div>
     <div class="pan" data-asm>${head(_t('Health'), '<span id="bName">–</span>')}
       <div class="health-big">${ring('bRing', 'var(--ok)')}<div><b><span id="bH">–</span>${PCT_SP}%</b><span>${_t('of the original capacity')}</span></div></div>
       <dl class="spec" id="bSpec"></dl>
@@ -635,7 +636,7 @@ R.battery = (el, t) => {
   };
   batChart.replay();
   const fill = (rep) => {
-    const spec = rep ? [[_t('Original capacity'), rep.design ? fmt1(rep.design / 1000) + ' Wh' : null], [_t('Current capacity'), rep.full ? fmt1(rep.full / 1000) + ' Wh' : null],
+    const spec = rep ? [[_t('Original capacity'), rep.design ? fmt1(rep.design / 1000) + ' ' + U('Wh') : null], [_t('Current capacity'), rep.full ? fmt1(rep.full / 1000) + ' ' + U('Wh') : null],
       [_t('Charge cycles'), rep.cycles ? fmtInt(rep.cycles) : _t('Windows does not report them')], [_t('Manufacturer'), rep.maker || null]].filter(x => x[1] != null) : [];
     S(el, 'bSpec').innerHTML = spec.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join(''); S(el, 'bName').textContent = rep && rep.name || _t('battery');
     const u = rep && rep.usage || [];
@@ -649,7 +650,7 @@ const BAT24 = (() => { const a = []; let c = 100; for (let i = 0; i < 96; i++) {
 /* ---------- processes: sortable table whose rows reorder (FLIP) ---------- */
 const COLS = [['n', _t('Name')], ['cpu', 'CPU'], ['ram', _t('Memory')], ['gpu', 'GPU'], ['disk', _t('Disk')], ['net', _t('Network')]];
 let sortK = 'cpu', sortDir = -1, query = '', hoverTable = false, procBody = null; const rowEls = new Map();
-const CELL = { cpu: v => pct(v), ram: mb, gpu: v => pct(v), disk: v => fmt1(v) + ' MB/s', net: v => REAL() ? (v ? _t('{n} conn.', { n: fmtInt(v) }) : '—') : fmt1(v) + ' Mb/s' };
+const CELL = { cpu: v => pct(v), ram: mb, gpu: v => pct(v), disk: v => fmt1(v) + ' ' + U('MB/s'), net: v => REAL() ? (v ? _t('{n} conn.', { n: fmtInt(v) }) : '—') : fmt1(v) + ' ' + U('Mb/s') };
 const HEAT = { cpu: 12, ram: 2000, gpu: 12, disk: 6, net: 12 };
 R.processes = (el, t) => {
   el.classList.add('fill');

@@ -81,6 +81,9 @@
   "and {n} more": "y {n} más",
   "Not now": "Ahora no",
   "Update": "Actualizar",
+  "download too large": "download too large",
+  "the update has no StellarHub.exe": "the update has no StellarHub.exe",
+  "unsafe path in the update: {name}": "unsafe path in the update: {name}",
   "Everything is up to date.": "Todo está al día.",
   "Update all": "Actualizar todo",
   "Select {name}": "Seleccionar {name}",
@@ -319,5 +322,6 @@
   "Check for updates to see which Store apps have a new version.": "Busca actualizaciones para ver qué aplicaciones de Store tienen una versión nueva.",
   "Not checked yet. Check now searches Windows Update; it takes a minute or two.": "Aún sin comprobar. Buscar ahora consulta Windows Update; tarda uno o dos minutos.",
   "Check now looks for new versions of Python and its packages, Node.js and npm packages, Git and WSL. Nothing is installed until you choose.": "Buscar ahora busca versiones nuevas de Python y sus paquetes, Node.js y los paquetes de npm, Git y WSL. No se instala nada hasta que lo elijas.",
-  "Check for updates to see which shared components (.NET, Visual C++, WebView2…) have a new version.": "Busca actualizaciones para ver qué componentes compartidos (.NET, Visual C++, WebView2…) tienen una versión nueva."
+  "Check for updates to see which shared components (.NET, Visual C++, WebView2…) have a new version.": "Busca actualizaciones para ver qué componentes compartidos (.NET, Visual C++, WebView2…) tienen una versión nueva.",
+  "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast.": "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast."
 }

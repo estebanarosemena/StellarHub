@@ -5,6 +5,7 @@
 (() => {
 const { $, $$, anim, EASE, ic, esc, state } = SH;
 const t = SH.t;
+const U = SH.unit;
 const REL = 'https://github.com/estebanarosemena/StellarHub/releases';
 let box = null, running = false, timer = 0, info = null;
 
@@ -34,7 +35,7 @@ function notesHTML(md) {
 
 /* ---------- the dialog ---------- */
 const orb = `<svg viewBox="0 0 24 24" fill="none" class="su-logo"><path d="M1.8 12.6A10.2 3 0 0 1 22.2 12.6" transform="rotate(-20 12 12.6)" style="stroke:var(--accent2)" stroke-opacity=".55" stroke-width="1.3"/><circle cx="12" cy="12.6" r="5.2" style="fill:var(--accent)"/><path d="M22.2 12.6A10.2 3 0 0 1 1.8 12.6" transform="rotate(-20 12 12.6)" style="stroke:var(--accent2)" stroke-width="1.3"/><circle class="su-moon" cx="19.6" cy="4.4" r="1.5" style="fill:var(--accent2)"/></svg>`;
-const mb = n => n ? (n / 1048576 >= 10 ? Math.round(n / 1048576) : SH.fmt1(n / 1048576)) + ' MB' : '';
+const mb = n => n ? (n / 1048576 >= 10 ? Math.round(n / 1048576) : SH.fmt1(n / 1048576)) + ' ' + U('MB') : '';
 const day = d => { const v = Date.parse(d); return isNaN(v) ? '' : new Date(v).toLocaleDateString(SH.i18n.locale, { day: 'numeric', month: 'long', year: 'numeric' }); };
 
 function open(inf) {
@@ -125,7 +126,7 @@ async function start() {
     if (fresh) {
       if (s.st === 'checking') { bar(0, true); $('#suNow', box).textContent = t('Getting ready…'); }
       else if (s.st === 'download') { stepTo('download'); bar(s.total ? s.got / s.total : 0, !s.total); last = Date.now();
-        $('#suNow', box).textContent = s.total ? t('Downloading, {got} of {total}', { got: mb(s.got) || '0 MB', total: mb(s.total) }) : t('Downloading…'); }
+        $('#suNow', box).textContent = s.total ? t('Downloading, {got} of {total}', { got: mb(s.got) || `0 ${U('MB')}`, total: mb(s.total) }) : t('Downloading…'); }
       else if (s.st === 'verify') { stepTo('verify'); bar(1); $('#suNow', box).textContent = t('Checking the download…'); }
       else if (s.st === 'ready') { finish(s.ver); return; }
       else if (s.st === 'staged') {
@@ -259,6 +260,6 @@ SH.on('boot', () => {
 });
 /* for screenshots in the browser (sample mode) */
 const demo = () => open({ current: '0.4.0', latest: '0.5.0', date: new Date().toISOString(), size: 20355523, mode: 'task',
-  notes: '### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast.' });
-SH.selfUpdate = { check, open, demo, paintSettings, kindOf, progressDemo: () => { demo(); running = true; progressView(); stepTo('download'); bar(.42); $('#suNow', box).textContent = t('Downloading, {got} of {total}', { got: '8.2 MB', total: '19 MB' }); } };
+  notes: t('### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast.') });
+SH.selfUpdate = { check, open, demo, paintSettings, kindOf, progressDemo: () => { demo(); running = true; progressView(); stepTo('download'); bar(.42); $('#suNow', box).textContent = t('Downloading, {got} of {total}', { got: `${SH.fmt1(8.2)} ${U('MB')}`, total: `19 ${U('MB')}` }); } };
 })();

@@ -75,11 +75,17 @@ class PartialDnsChange(unittest.TestCase):
             self.addCleanup(p.stop)
 
     def test_second_command_fails_error_keeps_the_backup(self):
-        answers = iter([mock.Mock(returncode=0, stdout=b""), mock.Mock(returncode=1, stdout="El parámetro es incorrecto.".encode("cp850"))])
+        message = "El parámetro es incorrecto."
+        try:
+            error = message.encode("oem")
+        except UnicodeEncodeError:  # Russian OEM (866) cannot encode Spanish accented letters
+            message = "Параметр указан неверно."
+            error = message.encode("oem")
+        answers = iter([mock.Mock(returncode=0, stdout=b""), mock.Mock(returncode=1, stdout=error)])
         with mock.patch.object(M, "ps_json", side_effect=fake_ps(True, "", ["192.168.1.1"])),                 mock.patch.object(M.subprocess, "run", side_effect=lambda c, **k: next(answers)):
             r = M.set_dns("Wi-Fi", "cloudflare")
         self.assertFalse(r["ok"])
-        self.assertIn("parámetro", r["error"])   # the console's own code page, not a fixed cp850 guess
+        self.assertIn(message, r["error"])   # the console's own code page, not a fixed cp850 guess
         self.assertTrue(os.path.isfile(os.path.join(self.tmp, r["backup"] + ".json")))
 
     def test_stuck_ipconfig_is_not_a_failure(self):

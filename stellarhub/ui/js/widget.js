@@ -4,13 +4,13 @@
 'use strict';
 (() => {
 const { $, $$, anim, EASE, ic, state } = SH;
-const t = SH.t;
+const t = SH.t, u = SH.unit;
 /* what Windows does not provide (e.g. CPU temperature without admin) arrives as null: shown as "—", never 0 */
 const ok = x => x !== null && x !== undefined;
 const R = (x, f = Math.round) => ok(x) ? f(x) : '—';
 /* names for the small version's hover: short (fits in the bar) and full (Windows tooltip) */
 const NAMES = { cpu: ['CPU', t('Processor usage')], cpuTemp: ['CPU °C', t('Processor temperature')], gpu: ['GPU', t('Graphics card usage')],
-  gpuTemp: ['GPU °C', t('Graphics card temperature')], gpuPower: ['GPU W', t('Graphics card power draw')], ram: ['RAM', t('Memory in use')],
+  gpuTemp: ['GPU °C', t('Graphics card temperature')], gpuPower: [`GPU ${u('W')}`, t('Graphics card power draw')], ram: ['RAM', t('Memory in use')],
   vram: ['VRAM', t('Video memory in use')], down: [t('Down'), t('Download speed')], up: [t('Up'), t('Upload speed')],
   ping: ['Ping', t('Connection latency')], disk: [t('Disk'), t('Disk activity (read + write)')] };
 const STATS = {
@@ -19,13 +19,13 @@ const STATS = {
   gpu: { n: 'GPU', ic: 'gpu', h: 'gpu', max: 100, val: v => [R(v.gpu), '%'], hot: v => v.gpu > 95 },
   gpuTemp: { n: t('GPU temp.'), ic: 'temp', h: 'gpuTemp', max: 100, val: v => [R(v.gpuTemp), '°C'], hot: v => v.gpuTemp > 84 },
   /* scales from this PC (32-64 GB of RAM, a 450 W desktop GPU), not from a mid-range laptop */
-  gpuPower: { n: SH.tc('widget', 'GPU power'), ic: 'bolt', h: 'gpuPower', max: v => v.gpuPowerLimit || 0, val: v => [R(v.gpuPower), 'W'], hot: () => false },
-  ram: { n: 'RAM', ic: 'ram', h: 'ram', max: v => v.ramTotal || 0, val: v => [R(v.ram, SH.fmt1), 'GB'], hot: v => v.ram / v.ramTotal > .9 },
-  vram: { n: 'VRAM', ic: 'layers', h: 'vram', max: v => v.vramTotal || 0, val: v => [R(v.vram, SH.fmt1), 'GB'], hot: () => false },
-  down: { n: SH.tc('widget', 'Download'), ic: 'download', h: 'down', max: 0, val: v => [R(v.down, SH.fmt1), 'Mb/s'], hot: () => false },
-  up: { n: t('Upload'), ic: 'upload', h: 'up', max: 0, val: v => [R(v.up, SH.fmt1), 'Mb/s'], hot: () => false },
-  ping: { n: t('Latency'), ic: 'globe', h: 'ping', max: 0, val: v => [R(v.ping), 'ms'], hot: v => v.ping > 80 },
-  disk: { n: t('Disk'), ic: 'ssd', h: 'diskRead', max: 0, val: v => [ok(v.diskRead) ? Math.round(v.diskRead + v.diskWrite) : '—', 'MB/s'], hot: () => false },
+  gpuPower: { n: SH.tc('widget', 'GPU power'), ic: 'bolt', h: 'gpuPower', max: v => v.gpuPowerLimit || 0, val: v => [R(v.gpuPower), u('W')], hot: () => false },
+  ram: { n: 'RAM', ic: 'ram', h: 'ram', max: v => v.ramTotal || 0, val: v => [R(v.ram, SH.fmt1), u('GB')], hot: v => v.ram / v.ramTotal > .9 },
+  vram: { n: 'VRAM', ic: 'layers', h: 'vram', max: v => v.vramTotal || 0, val: v => [R(v.vram, SH.fmt1), u('GB')], hot: () => false },
+  down: { n: SH.tc('widget', 'Download'), ic: 'download', h: 'down', max: 0, val: v => [R(v.down, SH.fmt1), u('Mb/s')], hot: () => false },
+  up: { n: t('Upload'), ic: 'upload', h: 'up', max: 0, val: v => [R(v.up, SH.fmt1), u('Mb/s')], hot: () => false },
+  ping: { n: t('Latency'), ic: 'globe', h: 'ping', max: 0, val: v => [R(v.ping), u('ms')], hot: v => v.ping > 80 },
+  disk: { n: t('Disk'), ic: 'ssd', h: 'diskRead', max: 0, val: v => [ok(v.diskRead) ? Math.round(v.diskRead + v.diskWrite) : '—', u('MB/s')], hot: () => false },
 };
 SH.WIDGET_STATS = STATS;
 const DEF = { widgetStats: ['cpu', 'gpu', 'gpuTemp', 'ram', 'down', 'ping'], widgetLayout: 'grid', widgetMode: 'full' };

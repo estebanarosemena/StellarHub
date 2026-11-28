@@ -379,7 +379,7 @@ class Translations(unittest.TestCase):
         keys |= {"Notification sound"}
         keys |= {"Sound", "Change the sound volume"}
         self.assertGreaterEqual(len(keys), 14)
-        for lang in ("es", "pt", "it", "fr", "zh", "ja"):
+        for lang in ("ru", "es", "pt", "it", "fr", "zh", "ja"):
             d = {}
             folder = os.path.join(UI, "i18n", lang)
             for f in os.listdir(folder):
@@ -546,6 +546,7 @@ const listen = (type, fn, o) => { (L[type] ||= []).push({ fn, capture: o === tru
 const fire = (type, e, h) => { e = { type, isTrusted: true, detail: 1, button: 0, buttons: 0, pointerType: 'mouse', clientX: 5, clientY: 5, ...e };
   for (const l of (L[type] || []).filter(l => l.capture)) l.fn(e); if (h) h(e); for (const l of (L[type] || []).filter(l => !l.capture)) l.fn(e); return e; };
 globalThis.window = globalThis;
+globalThis.navigator = { languages: ['en'] };
 const noop = () => {};
 const el = () => ({ dataset: {}, style: { setProperty: noop }, animate: () => ({ finished: Promise.resolve(), cancel: noop }), classList: { add: noop, remove: noop, toggle: noop, contains: () => false } });
 let DIALOGS = [], LOADERS = [], COVER = null, HIT = null;
@@ -574,6 +575,7 @@ globalThis.MutationObserver = class { observe() {} };
 globalThis.chrome = { webview: {} };
 globalThis.pywebview = { api: new Proxy({}, { get: (_, n) => n === 'then' ? undefined : () => true }) };
 globalThis.SH = { t: s => s };
+eval(require('fs').readFileSync(process.env.I18N_JS, 'utf8'));
 class AudioBuffer {}
 globalThis.AudioBuffer = AudioBuffer;
 const param = () => ({ value: 1, cancelScheduledValues: noop, setTargetAtTime: noop });
@@ -603,7 +605,7 @@ const nothing = { closest: () => null };
 class Wiring(unittest.TestCase):
     def run_js(self, body):
         code = WIRING + "(async () => {\n" + body + "\n})().catch(e => { console.log(String(e && e.stack || e)); process.exit(3); });"
-        env = dict(os.environ, CORE_JS=os.path.join(UI, "js", "core.js"), SOUNDS_JS=os.path.join(UI, "js", "sounds.js"))
+        env = dict(os.environ, I18N_JS=os.path.join(UI, "js", "i18n.js"), CORE_JS=os.path.join(UI, "js", "core.js"), SOUNDS_JS=os.path.join(UI, "js", "sounds.js"))
         d = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, d, True)
         src = os.path.join(d, "wiring.js")

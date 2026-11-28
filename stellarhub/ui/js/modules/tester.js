@@ -3,6 +3,7 @@
 (() => {
 const { $, $$, anim, EASE, ic, esc, fmt1, state, tickers } = SH;
 const t = SH.t;
+const U = SH.unit;
 let curTab = null;
 const active = t => state.view === 'tester' && curTab === t;
 const isMin = () => SH.effInt() === 'min';
@@ -17,11 +18,13 @@ SH.icons.add({
 /* ========================= Keyboard ========================= */
 /* Real layouts in key units (1 u = one letter). Each key: physical code (KeyboardEvent.code), legend, x, y, width, height. */
 const KB_NAMES = {
+  ru: { Escape: 'Esc', Backspace: '⌫', Tab: 'Tab', CapsLock: 'Caps Lock', Enter: 'Ввод', ShiftLeft: 'Shift', ShiftRight: 'Shift', ControlLeft: 'Ctrl', ControlRight: 'Ctrl', MetaLeft: 'Win', MetaRight: 'Win', AltLeft: 'Alt', AltRight: 'Alt Gr', ContextMenu: 'Меню', Space: '', Fn: 'Fn', PrintScreen: 'PrtSc', ScrollLock: 'ScrLk', Pause: 'Пауза', Insert: 'Ins', Delete: 'Del', Home: 'Home', End: 'End', PageUp: 'PgUp', PageDown: 'PgDn', NumLock: 'Num', NumpadEnter: 'Ввод' },
   es: { Escape: 'Esc', Backspace: 'Retroceso', Tab: 'Tab', CapsLock: 'Bloq Mayús', Enter: 'Intro', ShiftLeft: 'Mayús', ShiftRight: 'Mayús', ControlLeft: 'Ctrl', ControlRight: 'Ctrl', MetaLeft: 'Win', MetaRight: 'Win', AltLeft: 'Alt', AltRight: 'Alt Gr', ContextMenu: 'Menú', Space: '', Fn: 'Fn', PrintScreen: 'Impr', ScrollLock: 'Bl Despl', Pause: 'Pausa', Insert: 'Insert', Delete: 'Supr', Home: 'Inicio', End: 'Fin', PageUp: 'Re Pág', PageDown: 'Av Pág', NumLock: 'Bloq Num', NumpadEnter: 'Intro' },
   en: { Escape: 'Esc', Backspace: 'Backspace', Tab: 'Tab', CapsLock: 'Caps Lock', Enter: 'Enter', ShiftLeft: 'Shift', ShiftRight: 'Shift', ControlLeft: 'Ctrl', ControlRight: 'Ctrl', MetaLeft: 'Win', MetaRight: 'Win', AltLeft: 'Alt', AltRight: 'AltGr', ContextMenu: 'Menu', Space: '', Fn: 'Fn', PrintScreen: 'PrtSc', ScrollLock: 'ScrLk', Pause: 'Pause', Insert: 'Ins', Delete: 'Del', Home: 'Home', End: 'End', PageUp: 'PgUp', PageDown: 'PgDn', NumLock: 'Num', NumpadEnter: 'Enter' },
 };
 const KB_COMMON = { ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→', NumpadDivide: '/', NumpadMultiply: '*', NumpadSubtract: '−', NumpadAdd: '+', NumpadDecimal: ',', Numpad0: '0', Numpad1: '1', Numpad2: '2', Numpad3: '3', Numpad4: '4', Numpad5: '5', Numpad6: '6', Numpad7: '7', Numpad8: '8', Numpad9: '9' };
 const KB_LANGS = {
+  'ru-RU': { n: t('Russian'), iso: true, names: 'ru', map: { Backquote: 'Ё', Minus: '-', Equal: '=', KeyQ: 'Й', KeyW: 'Ц', KeyE: 'У', KeyR: 'К', KeyT: 'Е', KeyY: 'Н', KeyU: 'Г', KeyI: 'Ш', KeyO: 'Щ', KeyP: 'З', BracketLeft: 'Х', BracketRight: 'Ъ', KeyA: 'Ф', KeyS: 'Ы', KeyD: 'В', KeyF: 'А', KeyG: 'П', KeyH: 'Р', KeyJ: 'О', KeyK: 'Л', KeyL: 'Д', Semicolon: 'Ж', Quote: 'Э', Backslash: '\\', IntlBackslash: '\\', KeyZ: 'Я', KeyX: 'Ч', KeyC: 'С', KeyV: 'М', KeyB: 'И', KeyN: 'Т', KeyM: 'Ь', Comma: 'Б', Period: 'Ю', Slash: '.' } },
   'es-ES': { n: t('Spanish (Spain)'), iso: true, names: 'es', map: { Backquote: 'º', Minus: "'", Equal: '¡', BracketLeft: '`', BracketRight: '+', Semicolon: 'Ñ', Quote: '´', Backslash: 'Ç', IntlBackslash: '<', Comma: ',', Period: '.', Slash: '-' } },
   'es-419': { n: t('Spanish (Latin America)'), iso: true, names: 'es', map: { Backquote: '|', Minus: "'", Equal: '¿', BracketLeft: '´', BracketRight: '+', Semicolon: 'Ñ', Quote: '{', Backslash: '}', IntlBackslash: '<', Comma: ',', Period: '.', Slash: '-' } },
   'en-US': { n: t('English (US)'), iso: false, names: 'en', map: { Backquote: '`', Minus: '-', Equal: '=', BracketLeft: '[', BracketRight: ']', Backslash: '\\', Semicolon: ';', Quote: "'", Comma: ',', Period: '.', Slash: '/', AltRight: 'Alt' } },
@@ -141,7 +144,7 @@ async function kbDetect(el) {
   try {
     if (!navigator.keyboard || !navigator.keyboard.getLayoutMap) return;
     const m = await navigator.keyboard.getLayoutMap(); const g = c => (m.get(c) || '').toLowerCase();
-    const d = g('KeyQ') === 'a' ? 'fr-FR' : g('KeyY') === 'z' ? 'de-DE' : g('Semicolon') === 'ñ' ? (g('Backquote') === 'º' ? 'es-ES' : 'es-419') : g('Semicolon') === 'ç' ? 'pt-BR' : g('Backslash') === '#' ? 'en-GB' : 'en-US';
+    const d = g('KeyQ') === 'й' ? 'ru-RU' : g('KeyQ') === 'a' ? 'fr-FR' : g('KeyY') === 'z' ? 'de-DE' : g('Semicolon') === 'ñ' ? (g('Backquote') === 'º' ? 'es-ES' : 'es-419') : g('Semicolon') === 'ç' ? 'pt-BR' : g('Backslash') === '#' ? 'en-GB' : 'en-US';
     const drawn = kb.layout && kb.layout.lang;
     kb.detected = d;
     const want = kbLang(); $('#kbLang', el).value = want;
@@ -377,8 +380,8 @@ function renderSpeakers(el) {
     </div>
     <div class="pan sp-sweep" data-asm><div class="sp-sh"><div><h4>${t('Frequency sweep')}</h4><p class="muted">${t('From 20 Hz to 20 kHz in 12 seconds. Notice where you start and stop hearing it, and whether anything rattles or buzzes.')}</p></div>
       <button class="btn sec" id="spSweep">${ic('wave')}${t('Start the sweep')}</button></div>
-      <div class="sp-scale"><div class="sp-track"><span id="spProg"></span><i id="spHead"></i></div><div class="sp-ticks">${['20 Hz', '100 Hz', '1 kHz', '5 kHz', '20 kHz'].map(x => `<span>${x}</span>`).join('')}</div></div>
-      <div class="sp-now"><b class="big" id="spHz">20 Hz</b><span class="muted" id="spHzL">${t('ready to start')}</span><span class="chip warn sp-tip">${ic('alert')}${t('Turn the volume down first: high tones can be unpleasant')}</span></div></div></div>`;
+      <div class="sp-scale"><div class="sp-track"><span id="spProg"></span><i id="spHead"></i></div><div class="sp-ticks">${['20 Hz', '100 Hz', '1 kHz', '5 kHz', '20 kHz'].map(x => `<span>${SH.localizeUnits(x)}</span>`).join('')}</div></div>
+      <div class="sp-now"><b class="big" id="spHz">20 ${U('Hz')}</b><span class="muted" id="spHzL">${t('ready to start')}</span><span class="chip warn sp-tip">${ic('alert')}${t('Turn the volume down first: high tones can be unpleasant')}</span></div></div></div>`;
   au.el = el;
   $('#spVol', el).addEventListener('input', e => { au.vol = e.target.value / 100; $('#spVolV', el).textContent = e.target.value + '%'; if (au.sweep) au.sweep.g.gain.value = au.vol * .25; });
   $('.sp-btns', el).addEventListener('click', e => { const b = e.target.closest('[data-play]'); if (b) playSide(b.dataset.play); });
@@ -426,7 +429,7 @@ function stopSweep(ended) {
 }
 tickers.add(() => {
   if (!au.sweep || !au.el) return; const k = Math.min(1, (au.ctx.currentTime - au.sweep.t0) / au.sweep.T); const f = 20 * Math.pow(1000, k);
-  $('#spHz', au.el).textContent = f >= 1000 ? fmt1(f / 1000) + ' kHz' : Math.round(f) + ' Hz';
+  $('#spHz', au.el).textContent = f >= 1000 ? fmt1(f / 1000) + ' ' + U('kHz') : Math.round(f) + ' ' + U('Hz');
   $('#spProg', au.el).style.transform = `scaleX(${k.toFixed(4)})`; $('#spHead', au.el).style.left = (k * 100).toFixed(2) + '%';
 });
 function closeAudio() { stopSweep(); [...au.voices].forEach(v => stopVoice(v)); coneSync(); if (au.ctx) { au.ctx.close().catch(() => {}); au.ctx = null; } }
@@ -488,7 +491,7 @@ async function startMic(deviceId) {
     const C = window.AudioContext || window.webkitAudioContext; mic.ctx = new C(); const src = mic.ctx.createMediaStreamSource(mic.stream);
     mic.an = mic.ctx.createAnalyser(); mic.an.fftSize = 2048; src.connect(mic.an); mic.buf = new Float32Array(mic.an.fftSize);
     const tr = mic.stream.getAudioTracks()[0]; const s = tr.getSettings ? tr.getSettings() : {};
-    $('#mcInfo', el).textContent = [s.sampleRate ? `${SH.fmtInt(s.sampleRate)} Hz` : '', s.channelCount ? `${s.channelCount === 1 ? t('mono') : t('{n} channels', { n: s.channelCount })}` : '', s.echoCancellation ? t('with echo cancellation') : ''].filter(Boolean).join(', ');
+    $('#mcInfo', el).textContent = [s.sampleRate ? `${SH.fmtInt(s.sampleRate)} ${U('Hz')}` : '', s.channelCount ? `${s.channelCount === 1 ? t('mono') : t('{n} channels', { n: s.channelCount })}` : '', s.echoCancellation ? t('with echo cancellation') : ''].filter(Boolean).join(', ');
     const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput');
     const sel = $('#mcDev', el); sel.disabled = false; sel.innerHTML = devs.map((d, i) => `<option value="${esc(d.deviceId)}"${d.deviceId === s.deviceId ? ' selected' : ''}>${esc(d.label || t('Microphone {n}', { n: i + 1 }))}</option>`).join('');
     $('#mcState', el).hidden = true; const live = $('#mcLive', el); live.hidden = false; $('#mcStop', el).hidden = false; $('#mcRec', el).disabled = !window.MediaRecorder;
@@ -682,7 +685,7 @@ function updMouse() {
 tickers.add(() => {
   if (!active('mouse') || !ms.el) return; const now = performance.now();
   while (ms.evs.length && now - ms.evs[0] > 1000) ms.evs.shift();
-  const hz = pollRate(ms.evs); if (hz !== ms.hz) { ms.hz = hz; $('#msHz', ms.el).textContent = hz ? `~${SH.fmtInt(hz)} Hz` : t('move the mouse');
+  const hz = pollRate(ms.evs); if (hz !== ms.hz) { ms.hz = hz; $('#msHz', ms.el).textContent = hz ? `~${SH.fmtInt(hz)} ${U('Hz')}` : t('move the mouse');
     if (hz > (ms.hzMax || 0)) { ms.hzMax = hz; $('#msHzMax', ms.el).textContent = t('best {n} Hz', { n: SH.fmtInt(hz) }); } }
   const life = isMin() ? 150 : 700; while (ms.pts.length && now - ms.pts[0].t > life) { ms.pts.shift(); ms.dirty = true; }
   if (!ms.dirty) return; ms.dirty = ms.pts.length > 0;
@@ -863,7 +866,7 @@ function pdUpdate(force) {
   if (now - pd.t0 >= 600) {
     const el = (now - pd.t0) / 1000, hz = pd.cnt / el, fps = pd.frames / el, live = now - pd.lastMove < 700;
     pd.t0 = now; pd.cnt = 0; pd.frames = 0;
-    if (live && hz > 5) { pd.hz = hz; const capped = hz >= fps * .9; pd.hzMax = Math.max(pd.hzMax, hz); R.hz.textContent = (capped ? '≥ ' : '~') + SH.fmtInt(Math.round(hz)) + ' Hz'; R.hz.title = capped ? t('Your screen refreshes at about {n} Hz, so the real rate may be higher.', { n: SH.fmtInt(Math.round(fps)) }) : ''; }
+    if (live && hz > 5) { pd.hz = hz; const capped = hz >= fps * .9; pd.hzMax = Math.max(pd.hzMax, hz); R.hz.textContent = (capped ? '≥ ' : '~') + SH.fmtInt(Math.round(hz)) + ' ' + U('Hz'); R.hz.title = capped ? t('Your screen refreshes at about {n} Hz, so the real rate may be higher.', { n: SH.fmtInt(Math.round(fps)) }) : ''; }
     else if (!live && pd.hz === 0) R.hz.textContent = t('move a stick');
   }
 }

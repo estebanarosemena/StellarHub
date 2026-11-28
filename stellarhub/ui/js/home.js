@@ -118,7 +118,7 @@ home.addEventListener('click', e => {
 const PEND = [
   { k: 'drivers', go: 'drivers', tab: 'updates', one: t('driver update available'), many: t('driver updates available'), none: t('Drivers up to date'), unk: t('Check for new drivers') },
   { k: 'apps', go: 'updater', tab: 'overview', one: t('program to update'), many: t('programs to update'), none: t('Programs up to date'), unk: t('Check for updates'), alt: true },
-  { k: 'junk', go: 'optimizer', tab: 'clean', unit: 'GB', one: t('that can be freed'), many: t('that can be freed'), none: t('Nothing important to clean'), unk: t('Scan what can be cleaned') },
+  { k: 'junk', go: 'optimizer', tab: 'clean', unit: SH.unit('GB'), one: t('that can be freed'), many: t('that can be freed'), none: t('Nothing important to clean'), unk: t('Scan what can be cleaned') },
 ];
 function renderPending() {
   const box = $('#pendList'); if (!box) return; const p = state.settings.pending || {};
@@ -269,9 +269,14 @@ async function refreshPC(force) {
     if (!built) return;
     const m = $('#hModel'); if (m) m.textContent = PC.model;
     const sub = $('.h-id .sub', home); if (sub) sub.innerHTML = subLine();
-    $$('.facts b', home).forEach((b, i) => {
+    $$('.facts > div', home).forEach((el, i) => {
       const v = [PC.facts.drivers, PC.facts.programs, PC.facts.freeC][i];
-      if (v == null) { b.dataset.count = ''; b.textContent = dash; } else { b.dataset.count = v; SH.countUp(b, +v); }
+      const b = $('b', el);
+      if (v == null) { b.dataset.count = ''; b.textContent = dash; }
+      else {
+        if (i < 2) $('span', el).textContent = t(['drivers', 'programs'][i], { n: v });
+        b.dataset.count = v; SH.countUp(b, +v);
+      }
     });
     if (comps) {
       const chip = $('.stage-head .chip', home); if (chip) chip.textContent = PC.components.length;

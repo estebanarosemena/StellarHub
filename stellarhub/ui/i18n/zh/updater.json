@@ -81,6 +81,9 @@
   "and {n} more": "还有 {n} 个",
   "Not now": "暂不",
   "Update": "更新",
+  "download too large": "download too large",
+  "the update has no StellarHub.exe": "the update has no StellarHub.exe",
+  "unsafe path in the update: {name}": "unsafe path in the update: {name}",
   "Everything is up to date.": "一切都是最新的。",
   "Update all": "全部更新",
   "Select {name}": "选择 {name}",
@@ -319,5 +322,6 @@
   "Check for updates to see which Store apps have a new version.": "检查更新，看看哪些 Store 应用有新版本。",
   "Not checked yet. Check now searches Windows Update; it takes a minute or two.": "尚未检查。“立即检查”会搜索 Windows Update，需要一两分钟。",
   "Check now looks for new versions of Python and its packages, Node.js and npm packages, Git and WSL. Nothing is installed until you choose.": "“立即检查”会查找 Python 及其包、Node.js 和 npm 包、Git 和 WSL 的新版本。在你选择之前，不会安装任何内容。",
-  "Check for updates to see which shared components (.NET, Visual C++, WebView2…) have a new version.": "检查更新，看看哪些共享组件 (.NET、Visual C++、WebView2…) 有新版本。"
+  "Check for updates to see which shared components (.NET, Visual C++, WebView2…) have a new version.": "检查更新，看看哪些共享组件 (.NET、Visual C++、WebView2…) 有新版本。",
+  "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast.": "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast."
 }

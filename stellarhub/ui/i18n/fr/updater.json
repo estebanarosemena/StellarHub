@@ -1,4 +1,5 @@
 {
+  "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast.": "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast.",
   "Security": "Sécurité",
   "security": "sécurité",
   "Update security": "Mettre à jour la sécurité",
@@ -81,6 +82,9 @@
   "and {n} more": "et {n} de plus",
   "Not now": "Pas maintenant",
   "Update": "Mettre à jour",
+  "download too large": "download too large",
+  "the update has no StellarHub.exe": "the update has no StellarHub.exe",
+  "unsafe path in the update: {name}": "unsafe path in the update: {name}",
   "Everything is up to date.": "Tout est à jour.",
   "Update all": "Tout mettre à jour",
   "Select {name}": "Sélectionner {name}",

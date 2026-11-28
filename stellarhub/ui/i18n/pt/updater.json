@@ -81,6 +81,9 @@
   "and {n} more": "e mais {n}",
   "Not now": "Agora não",
   "Update": "Atualizar",
+  "download too large": "download too large",
+  "the update has no StellarHub.exe": "the update has no StellarHub.exe",
+  "unsafe path in the update: {name}": "unsafe path in the update: {name}",
   "Everything is up to date.": "Tudo está atualizado.",
   "Update all": "Atualizar tudo",
   "Select {name}": "Selecionar {name}",
@@ -319,5 +322,6 @@
   "Check for updates to see which Store apps have a new version.": "Verifique se há atualizações para ver quais apps da Store têm uma nova versão.",
   "Not checked yet. Check now searches Windows Update; it takes a minute or two.": "Ainda não verificado. Verificar agora procura no Windows Update; leva um ou dois minutos.",
   "Check now looks for new versions of Python and its packages, Node.js and npm packages, Git and WSL. Nothing is installed until you choose.": "Verificar agora procura novas versões do Python e seus pacotes, do Node.js e dos pacotes npm, do Git e do WSL. Nada é instalado até você escolher.",
-  "Check for updates to see which shared components (.NET, Visual C++, WebView2…) have a new version.": "Verifique se há atualizações para ver quais componentes compartilhados (.NET, Visual C++, WebView2…) têm uma nova versão."
+  "Check for updates to see which shared components (.NET, Visual C++, WebView2…) have a new version.": "Verifique se há atualizações para ver quais componentes compartilhados (.NET, Visual C++, WebView2…) têm uma nova versão.",
+  "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast.": "### ✦ New\n\n- **Updates by themselves**: StellarHub checks GitHub when it opens.\n- A radar in Privacy & Security.\n\n### ⚙ Fixes\n\n- App Hangar no longer waits forever when an installer leaves a process running.\n- The keyboard test no longer reports chatter when you type fast."
 }

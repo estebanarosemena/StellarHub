@@ -23,6 +23,7 @@ UI = os.path.join(ROOT, "stellarhub", "ui")
 PRELUDE = r"""
 const calls = [], toasts = [];
 globalThis.window = globalThis;
+globalThis.navigator = { languages: ['en'] };
 const noop = () => {};
 const el = () => ({ dataset: {}, style: { setProperty: noop }, animate: () => ({ finished: Promise.resolve(), cancel: noop }), classList: { add: noop, remove: noop, toggle: noop } });
 globalThis.document = { documentElement: el(), hidden: false, addEventListener: noop, querySelector: () => null, querySelectorAll: () => [] };
@@ -37,6 +38,7 @@ globalThis.pywebview = { api };
 globalThis.SH = { t: (s, v) => v ? s.replace(/\{(\w+)\}/g, (m, k) => k in v ? v[k] : m) : s };
 """
 LOAD = r"""
+eval(require('fs').readFileSync(process.env.I18N_JS, 'utf8'));
 eval(require('fs').readFileSync(process.env.CORE_JS, 'utf8'));
 SH.toast = (text, o = {}) => { SH.toast.lastAt = performance.now(); toasts.push({ text, kind: o.kind, silent: !!o.silent, action: o.action && o.action.label }); };
 SH.go = (m, o) => { calls.push(['go', m, o || {}]); SH.state.view = m === 'settings' ? SH.state.view : m; SH.emit('view', { to: m }); };
@@ -49,7 +51,7 @@ const out = x => { process.stdout.write(JSON.stringify(x)); process.exit(0); };
 class Registry(unittest.TestCase):
     def run_js(self, body):
         code = PRELUDE + LOAD + "(async () => {\n" + body + "\n})().catch(e => { console.log(String(e && e.stack || e)); process.exit(3); });"
-        env = dict(os.environ, CORE_JS=os.path.join(UI, "js", "core.js"))
+        env = dict(os.environ, I18N_JS=os.path.join(UI, "js", "i18n.js"), CORE_JS=os.path.join(UI, "js", "core.js"))
         r = subprocess.run(["node", "-e", code], capture_output=True, text=True, timeout=60, env=env)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         return json.loads(r.stdout)
@@ -636,7 +638,7 @@ class OnDemand(unittest.TestCase):
             keys |= {k for k in re.findall(r"(?<![\w.])(?:SH\.t|t|T)\('((?:[^'\\]|\\.)*)'", src)
                      if re.search(r"Last (analysis|check|scan): \{when\}|Not (analyzed|checked) yet|Analyze automatically|These results are from then|^Check now looks|^The check reads|See what takes up space", k)}
         self.assertGreaterEqual(len(keys), 15)
-        for lang in ("es", "pt", "it", "fr", "zh", "ja"):
+        for lang in ("ru", "es", "pt", "it", "fr", "zh", "ja"):
             d = {}
             for f in os.listdir(os.path.join(UI, "i18n", lang)):
                 with open(os.path.join(UI, "i18n", lang, f), "rb") as fh:

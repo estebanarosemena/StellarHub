@@ -5,6 +5,7 @@
 (() => {
 const { $, $$, state, Spring, EASE, anim, tickers, ic, esc, fmt1 } = SH;
 const t = SH.t;
+const U = SH.unit;
 const ID = 'hangar';
 SH.icons.add({
   'hg-chat': '<path d="M20 11.5a7.5 7 0 0 1-11 6.2L4.5 19l1.3-3.6A7 7 0 1 1 20 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/>',
@@ -735,7 +736,7 @@ function retryFailed() {
   finishedSummary(); startQueue(); publishQ();
 }
 const QST = { queued: t('Waiting'), down: t('Downloading'), inst: t('Installing'), done: t('Installed'), skip: t('Already installed'), fail: t('Error'), cancel: t('Cancelled') };
-const mbTxt = v => v == null || isNaN(v) ? '' : v >= 1024 ? fmt1(v / 1024) + ' GB' : (v < 10 ? fmt1(v) : Math.round(v)) + ' MB';
+const mbTxt = v => v == null || isNaN(v) ? '' : v >= 1024 ? fmt1(v / 1024) + ' ' + U('GB') : (v < 10 ? fmt1(v) : Math.round(v)) + ' ' + U('MB');
 function qStateText(q) {
   if (q.note === 'uac' && (q.st === 'down' || q.st === 'inst')) return t('Windows is asking for permission: look for the flashing shield in the taskbar');
   if (q.note === 'quiet' && (q.st === 'down' || q.st === 'inst'))

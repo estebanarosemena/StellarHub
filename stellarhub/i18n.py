@@ -15,7 +15,7 @@ import os
 import sys
 import threading
 
-CODES = ("en", "es", "pt", "it", "fr", "zh", "ja")
+CODES = ("en", "ru", "es", "pt", "it", "fr", "zh", "ja")
 _lock = threading.Lock()
 _lang = None
 _dict = {}
@@ -124,12 +124,30 @@ def _init_from_settings():
     set_language(pref)
 
 
+def _ru_plural_index(value):
+    try:
+        n = abs(int(float(value)))
+    except (TypeError, ValueError):
+        n = 0
+    if 11 <= n % 100 <= 14:
+        return 2
+    if n % 10 == 1:
+        return 0
+    if 2 <= n % 10 <= 4:
+        return 1
+    return 2
+
+
 def tr(text, **kw):
     """The translation of an English sentence; {name} placeholders are filled from the keyword arguments.
     Unknown text comes back in English, so a missing translation never breaks anything."""
     if _lang is None:
         _init_from_settings()
     s = _dict.get(text) or text
+    if "|" in s:
+        forms = s.split("|")
+        n = next((v for k, v in kw.items() if k == "n" or (k.startswith("n") and k[1:].isdigit())), 0)
+        s = forms[min(_ru_plural_index(n), len(forms) - 1)]
     if kw:
         try:
             s = s.format(**kw)
