@@ -3,11 +3,12 @@
 (() => {
 const { $, $$, anim, EASE, ic, esc, fmt1, state } = SH;
 const t = SH.t;
+const U = SH.unit;
 /* words whose meaning here differs from elsewhere in the app (key "optimizer|Word") */
 const tc = (w, vars) => SH.tc('optimizer', w, vars);
 const wait = ms => new Promise(r => setTimeout(r, ms));
-const gb = b => b >= 1e9 ? fmt1(b / 1e9) + ' GB' : Math.max(0, Math.round(b / 1e6)) + ' MB';
-const sec = s => fmt1(s) + ' s';
+const gb = b => b >= 1e9 ? fmt1(b / 1e9) + ' ' + U('GB') : Math.max(0, Math.round(b / 1e6)) + ' ' + U('MB');
+const sec = s => fmt1(s) + ' ' + U('s');
 const isMin = () => SH.effInt() === 'min';
 
 SH.icons.add({
@@ -21,7 +22,7 @@ SH.icons.add({
 /* ================= data (the shape Python returns) ================= */
 const DB = {
   clean: [
-    { id: 'user_temp', g: 'Windows', label: t('User temporary files'), size: 2.84e9, files: 18342, def: true, temp: true, keptSize: 3.1e9, keptCount: 4,
+    { id: 'user_temp', g: t('Windows'), label: t('User temporary files'), size: 2.84e9, files: 18342, def: true, temp: true, keptSize: 3.1e9, keptCount: 4,
       desc: t('Files programs leave in %TEMP%. Folders used recently or by a running program are kept.'), paths: ['C:\\Users\\usuario\\AppData\\Local\\Temp'],
       rows: [
         { name: 'chrome_installer_old', path: 'C:\\Users\\usuario\\AppData\\Local\\Temp\\chrome_installer_old', short: '%USERPROFILE%\\AppData\\Local\\Temp\\chrome_installer_old', kind: 'dir', size: 1.62e9, files: 412, status: 'clean', reason: '' },
@@ -424,7 +425,7 @@ function ringSVG() {
     ${segs.map((d, i) => `<path d="${d}" class="fg" data-seg="${AREAS[i].id}" style="stroke-dasharray:${L} ${L};stroke-dashoffset:${L}" data-l="${L}"/>`).join('')}
     <circle cx="110" cy="110" r="70" class="core"/></svg><i class="ring-sw" aria-hidden="true"></i>`;
 }
-const ovFoot = () => `<div class="ov-foot"><div class="ov-fi"><span class="faint">${t('Last optimization')}</span><b>${lastRun ? t('Today, just now') : t('Never from StellarHub')}</b></div><div class="ov-fi"><span class="faint">${t('Free space on C:')}</span><b>${SH.fmtInt(freeC() + (lastRun && !REAL ? lastRun.freed / 1e9 : 0))} GB</b></div><div class="ov-fi"><span class="faint">${DB.boots.length ? t('Average boot') : t('BIOS time')}</span><b>${DB.boots.length ? fmt1(bootAvg() - bootSaved()) + ' s' : DB.bios ? fmt1(DB.bios) + ' s' : '—'}</b></div><button class="ov-auto" data-go-auto>${ic('autopilot')}<span><b>${t('Do it automatically every week')}</b>${t('Create a scheduled task')}</span>${ic('chev')}</button></div>`;
+const ovFoot = () => `<div class="ov-foot"><div class="ov-fi"><span class="faint">${t('Last optimization')}</span><b>${lastRun ? t('Today, just now') : t('Never from StellarHub')}</b></div><div class="ov-fi"><span class="faint">${t('Free space on C:')}</span><b>${SH.fmtInt(freeC() + (lastRun && !REAL ? lastRun.freed / 1e9 : 0))} ${U('GB')}</b></div><div class="ov-fi"><span class="faint">${DB.boots.length ? t('Average boot') : t('BIOS time')}</span><b>${DB.boots.length ? fmt1(bootAvg() - bootSaved()) + ' ' + U('s') : DB.bios ? fmt1(DB.bios) + ' ' + U('s') : '—'}</b></div><button class="ov-auto" data-go-auto>${ic('autopilot')}<span><b>${t('Do it automatically every week')}</b>${t('Create a scheduled task')}</span>${ic('chev')}</button></div>`;
 const findingsHTML = () => `<h4 class="pan-h">${t('What we found')} <em>${t('just now')}</em></h4><div class="rows">${AREAS.map(a => `<div class="row ov-row" data-area="${a.id}"><span class="ri">${ic(a.ic)}</span><span class="rt"><b>${a.n}</b><span>${esc(a.txt())}</span></span><span class="ov-bar ${tone(a)}"><i style="transform:scaleX(${areaFill(a)})"></i></span><span class="ov-v ${tone(a)}">${valTxt(a)}</span><button class="btn sm ghost" data-tab="${a.tab}">${t('Review')}</button></div>`).join('')}</div>${ovFoot()}`;
 let ovEl = null, ovMode = 'findings', running = false, ovStale = false;
 /* analyzing: the Overview's analysis is running; ovFresh: it ran in this session (until then the Overview shows the last
@@ -579,7 +580,7 @@ async function runPlan(el, steps) {
   running = true; ovMode = 'run'; const right = $('#optRight', el); $('#optAll', el).disabled = true; $('#optRescan', el).hidden = true;
   const before = { boot: bootSaved(), score };
   const act = SH.activity.start('optimizer', { key: 'plan', label: t('Optimizing'), go: { tab: 'overview' } });
-  swap(right, `<h4 class="pan-h">${t('Optimizing')} <em id="optFreed">${t('{size} freed', { size: '0 MB' })}</em></h4><div class="phases">${steps.map(s => `<div class="phase" data-ph="${s.id}"><span class="ph-dot"></span><div class="pt"><b>${esc(s.t)}</b><span class="ph-msg">${t('Waiting')}</span><div class="bar acc"><span style="transform:scaleX(0)"></span></div></div></div>`).join('')}</div>`);
+  swap(right, `<h4 class="pan-h">${t('Optimizing')} <em id="optFreed">${t('{size} freed', { size: `0 ${U('MB')}` })}</em></h4><div class="phases">${steps.map(s => `<div class="phase" data-ph="${s.id}"><span class="ph-dot"></span><div class="pt"><b>${esc(s.t)}</b><span class="ph-msg">${t('Waiting')}</span><div class="bar acc"><span style="transform:scaleX(0)"></span></div></div></div>`).join('')}</div>`);
   await wait(520);
   $('#optState', el).textContent = t('Working…'); $('#optSub', el).textContent = t('You can keep using your PC in the meantime.'); $('.ring', el).classList.add('scanning');
   let freed = 0; const log = [];
@@ -748,7 +749,7 @@ function renderClean(el) {
   const detHTML = c => (c.busy ? `<p class="warn-t">${t("{name} is open. Close it to clean its cache; otherwise it's skipped.", { name: esc(c.label) })}</p>` : '') + (c.rows ? tempDetHTML(c)
     : `<p class="faint">${t('{n} files', { n: SH.fmtInt(c.files) })}</p>${c.paths.map(p => `<div class="cl-path">${ic('folder')}<span>${esc(p)}</span></div>`).join('')}`);
   el.innerHTML = `<div class="cl">
-    <div class="pan cl-top" data-asm><div class="cl-tot"><span class="muted">${tc('Selected')}</span><div><b class="big" id="clTot">0</b><small class="muted"> GB</small></div></div>
+    <div class="pan cl-top" data-asm><div class="cl-tot"><span class="muted">${tc('Selected')}</span><div><b class="big" id="clTot">0</b><small class="muted"> ${U('GB')}</small></div></div>
       <div class="cl-meta"><span id="clCount"></span><span class="faint" id="clAllSize"></span></div>
       <div class="cl-days"><span class="muted">${t('Keep temp files from the last')}</span><div class="seg" id="clDays"><span class="ind"></span>${DAY_CHOICES.map(d => `<button data-v="${d}"${d === days ? ' class="on"' : ''}>${dayTxt(d)}</button>`).join('')}</div></div>
       <div class="cl-acts"><button class="btn ghost sm" id="clRec">${t('Select recommended')}</button><button class="btn ghost sm" id="clNone">${t('Clear selection')}</button><button class="btn pri lg" id="clGo">${ic('broom')}${t('Clean selected')}</button></div></div>
@@ -1198,18 +1199,18 @@ function renderRegistry(el) {
 /* ================= Repair ================= */
 const REPAIRS = [
   { id: 'sfc', ic: 'shield', t: t('Check Windows files'), need: t('to check Windows files.'), cmd: 'sfc /scannow', d: t('Looks for damaged system files and replaces them with good copies.'), when: t("Odd errors, Windows apps that won't open, blue screens after an update."), dur: t('5 to 15 min'), admin: true,
-    log: [['Beginning system scan. This process will take some time.', 0], ['Beginning verification phase of system scan.', .05], ['Verification 18% complete.', .18], ['Verification 41% complete.', .41], ['Verification 67% complete.', .67], ['Verification 92% complete.', .92], ['Verification 100% complete.', 1], ['Windows Resource Protection did not find any integrity violations.', 1, 'ok']] },
+    log: [[t('Beginning system scan. This process will take some time.'), 0], [t('Beginning verification phase of system scan.'), .05], [t('Verification {n}% complete.', { n: 18 }), .18], [t('Verification {n}% complete.', { n: 41 }), .41], [t('Verification {n}% complete.', { n: 67 }), .67], [t('Verification {n}% complete.', { n: 92 }), .92], [t('Verification {n}% complete.', { n: 100 }), 1], [t('Windows Resource Protection did not find any integrity violations.'), 1, 'ok']] },
   { id: 'dism', ic: 'package', t: t('Repair the Windows image'), need: t('to repair the Windows image.'), cmd: 'DISM /Online /Cleanup-Image /RestoreHealth', d: t('Repairs the copy of Windows that SFC takes good files from. Uses Windows Update.'), when: t("When SFC says it found damaged files and couldn't fix them."), dur: t('10 to 20 min'), admin: true,
-    log: [['Deployment Image Servicing and Management tool', 0], ['Image Version: 10.0.26200.7171', .02], ['[=====                      10.0%                          ]', .1], ['[==============             38.4%                          ]', .38], ['[==========================62.3%                          ]', .62], ['[==========================84.9%==========               ]', .85], ['[==========================100.0%==========================]', 1], ['The restore operation completed successfully.', 1, 'ok']] },
+    log: [[t('Deployment Image Servicing and Management tool'), 0], [t('Image Version: {version}', { version: '10.0.26200.7171' }), .02], ['[=====                      10.0%                          ]', .1], ['[==============             38.4%                          ]', .38], ['[==========================62.3%                          ]', .62], ['[==========================84.9%==========               ]', .85], ['[==========================100.0%==========================]', 1], [t('The restore operation completed successfully.'), 1, 'ok']] },
   { id: 'chkdsk', ic: 'ssd', t: t('Check the disk'), need: t('to check the disk.'), cmd: 'chkdsk C: /scan', d: t('Looks for file system errors without unmounting the disk.'), when: t("Files that won't open, folders that disappear or disk warnings."), dur: t('1 to 3 min'), admin: true,
-    log: [['The type of the file system is NTFS.', 0], ['Stage 1: Examining basic file system structure…', .2], ['  1203456 file records processed.', .45], ['Stage 2: Examining file name linkage…', .6], ['Stage 3: Examining security descriptors…', .85], ['Windows has scanned the file system and found no problems.', 1, 'ok']] },
+    log: [[t('The type of the file system is NTFS.'), 0], [t('Stage {n}: Examining basic file system structure…', { n: 1 }), .2], [t('{n} file records processed.', { n: 1203456 }), .45], [t('Stage {n}: Examining file name linkage…', { n: 2 }), .6], [t('Stage {n}: Examining security descriptors…', { n: 3 }), .85], [t('Windows has scanned the file system and found no problems.'), 1, 'ok']] },
   { id: 'wu', ic: 'windows', t: t('Repair Windows Update'), need: t('to repair Windows Update.'), cmd: 'net stop wuauserv, ren SoftwareDistribution', d: t('Stops the update services, renames their cache and starts them again.'), when: t('Updates that fail again and again or get stuck at 0%.'), dur: t('1 min'), admin: true,
     log: [[t('Stopping Windows Update…'), .1], [t('Stopping the Background Intelligent Transfer Service (BITS)…'), .25], [t('Renaming SoftwareDistribution to SoftwareDistribution.old…'), .5], [t('Renaming catroot2…'), .65], [t('Starting the services…'), .85], [t('Windows Update is ready to search again.'), 1, 'ok']] },
-  { id: 'net', ic: 'wifi', t: t('Reset the network'), need: t('to reset the network.'), cmd: 'netsh winsock reset, netsh int ip reset, ipconfig /flushdns', d: t("Fixes connections that don't load pages or failing DNS."), when: t("There's Wi-Fi but pages don't load, or only some sites fail."), dur: '30 s', admin: true, reboot: true, warn: t('This resets static IP and DNS settings. StellarHub saves them first and tells you where.'),
-    log: [[t('Flushing the DNS cache…'), .2], ['Successfully flushed the DNS Resolver Cache.', .3], [t('Resetting the Winsock catalog…'), .55], ['Successfully reset the Winsock Catalog.', .7], [t('Resetting TCP/IP…'), .9], [t('Done. Restart the PC to finish.'), 1, 'warn']] },
-  { id: 'icons', ic: 'grid', t: t('Rebuild icons and fonts'), need: t('to rebuild icons and fonts.'), cmd: 'ie4uinit -show, delete iconcache_*.db', d: t('For blank or wrong icons and fonts that look odd.'), when: t('Blank icons, stale thumbnails or text that looks wrong.'), dur: '20 s',
+  { id: 'net', ic: 'wifi', t: t('Reset the network'), need: t('to reset the network.'), cmd: 'netsh winsock reset, netsh int ip reset, ipconfig /flushdns', d: t("Fixes connections that don't load pages or failing DNS."), when: t("There's Wi-Fi but pages don't load, or only some sites fail."), dur: `30 ${U('s')}`, admin: true, reboot: true, warn: t('This resets static IP and DNS settings. StellarHub saves them first and tells you where.'),
+    log: [[t('Flushing the DNS cache…'), .2], [t('Successfully flushed the DNS Resolver Cache.'), .3], [t('Resetting the Winsock catalog…'), .55], [t('Successfully reset the Winsock Catalog.'), .7], [t('Resetting TCP/IP…'), .9], [t('Done. Restart the PC to finish.'), 1, 'warn']] },
+  { id: 'icons', ic: 'grid', t: t('Rebuild icons and fonts'), need: t('to rebuild icons and fonts.'), cmd: 'ie4uinit -show, delete iconcache_*.db', d: t('For blank or wrong icons and fonts that look odd.'), when: t('Blank icons, stale thumbnails or text that looks wrong.'), dur: `20 ${U('s')}`,
     log: [[t('Closing File Explorer…'), .15], [t('Deleting iconcache_*.db (14 files)…'), .4], [t('Deleting the font cache…'), .6], [t('Opening File Explorer…'), .9], [t('Icons rebuilt.'), 1, 'ok']] },
-  { id: 'explorer', ic: 'folder', t: t('Restart File Explorer'), need: t('to restart File Explorer.'), cmd: 'taskkill /f /im explorer.exe && start explorer', d: t('If the taskbar or the Start menu hangs.'), when: t("The taskbar doesn't respond or the Start menu won't open."), dur: '5 s',
+  { id: 'explorer', ic: 'folder', t: t('Restart File Explorer'), need: t('to restart File Explorer.'), cmd: 'taskkill /f /im explorer.exe && start explorer', d: t('If the taskbar or the Start menu hangs.'), when: t("The taskbar doesn't respond or the Start menu won't open."), dur: `5 ${U('s')}`,
     log: [[t('Closing explorer.exe…'), .4], [t('Opening explorer.exe…'), .8], [t('File Explorer restarted.'), 1, 'ok']] },
 ];
 /* SFC, DISM and chkdsk report their own %; the rest move in fixed steps */

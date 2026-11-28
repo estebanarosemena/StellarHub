@@ -1,6 +1,6 @@
 # Translations
 
-StellarHub is written in English and translated into Spanish (`es`), Portuguese – Brazil (`pt`), Italian (`it`),
+StellarHub is written in English and translated into Russian (`ru`), Spanish (`es`), Portuguese – Brazil (`pt`), Italian (`it`),
 French (`fr`), Simplified Chinese (`zh`) and Japanese (`ja`).
 
 ## How it works
@@ -24,6 +24,7 @@ French (`fr`), Simplified Chinese (`zh`) and Japanese (`ja`).
 - One key per complete sentence or label. Never build a sentence from translated fragments ("Found " + n + "
   files"): use placeholders, so word order can change: `t('Found {n} files', { n })`.
 - Plurals: keep the code's existing choice between two keys (`n === 1 ? t('{n} file', {n}) : t('{n} files', {n})`).
+  Russian values may use `one|few|many` (for example `{n} файл|{n} файла|{n} файлов`); the form is chosen from `{n}`.
 - Keep HTML out of keys when possible (`<b>${t('Name')}</b>`). If a sentence has inline markup in the middle, the
   key may contain simple tags (`<b>`, `<i>`, `<br>`), and the translation must keep exactly the same tags.
 - Do not translate: StellarHub, Windows and other product or company names (NVIDIA, winget, Microsoft Store,
@@ -42,6 +43,7 @@ French (`fr`), Simplified Chinese (`zh`) and Japanese (`ja`).
 | | Address | Style |
 |---|---|---|
 | es | tú | Spain Spanish, natural and short, like Windows 11 in Spanish but warmer |
+| ru | neutral | Concise Russian like Windows 11; infinitives for actions, noun phrases for labels |
 | pt | você | Brazilian Portuguese |
 | it | tu | |
 | fr | vous | |

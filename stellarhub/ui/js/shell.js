@@ -454,6 +454,7 @@ const STAR = (cx, cy, r, rot = 0) => { let d = ''; for (let i = 0; i < 10; i++) 
 const FLAGS = {
   en: () => { let s = ''; for (let i = 0; i < 7; i++) s += `<rect y="${(i * 20 / 7).toFixed(2)}" width="30" height="${(20 / 7).toFixed(2)}" fill="${i % 2 ? '#fff' : '#B22234'}"/>`;
     s += '<rect width="13" height="11.43" fill="#3C3B6E"/>'; for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) s += `<circle cx="${1.6 + c * 2.45}" cy="${1.6 + r * 2.7}" r=".55" fill="#fff"/>`; return s; },
+  ru: () => '<rect width="30" height="10" fill="#FFF"/><rect y="10" width="30" height="10" fill="#0039A6"/><rect y="20" width="30" height="10" fill="#D52B1E"/>',
   es: () => '<rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/>',
   pt: () => '<rect width="30" height="20" fill="#009C3B"/><path d="M3 10 15 2.6 27 10 15 17.4Z" fill="#FFDF00"/><circle cx="15" cy="10" r="4.6" fill="#002776"/><path d="M10.6 8.9c3-.9 6.2-.6 8.9.8" stroke="#fff" stroke-width=".9" fill="none"/>',
   it: () => '<rect width="10" height="20" fill="#009246"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#CE2B37"/>',

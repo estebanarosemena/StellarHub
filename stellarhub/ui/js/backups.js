@@ -18,11 +18,11 @@ const SAMPLE = {
   status: { admin: true, systemDrive: 'C:', services: { VSS: 'manual', swprv: 'manual' }, policy: false, error: null,
     drives: [{ drive: 'C:', system: true, total: 1023e9, enabled: true, used: 3.4e9, max: 51.2e9, maxPct: 5 }, { drive: 'D:', system: false, total: 2000e9, enabled: false, used: null, max: null, maxPct: null }],
     points: [
-      { seq: 31, desc: 'StellarHub: before installing drivers', type: 10, t: NOW - 3600 * 5 },
+      { seq: 31, desc: t('StellarHub: before installing drivers'), type: 10, t: NOW - 3600 * 5 },
       { seq: 30, desc: 'Windows Update', type: 7, t: NOW - DAY * 2.2 },
-      { seq: 29, desc: 'StellarHub: Adobe Reader', type: 1, t: NOW - DAY * 6 },
-      { seq: 28, desc: 'Installed Microsoft Visual C++ 2015-2022 Redistributable (x64)', type: 0, t: NOW - DAY * 13 },
-      { seq: 27, desc: 'Automatic Restore Point', type: 7, t: NOW - DAY * 21 },
+      { seq: 29, desc: t('StellarHub: Adobe Reader'), type: 1, t: NOW - DAY * 6 },
+      { seq: 28, desc: t('Installed Microsoft Visual C++ 2015-2022 Redistributable (x64)'), type: 0, t: NOW - DAY * 13 },
+      { seq: 27, desc: t('Automatic Restore Point'), type: 7, t: NOW - DAY * 21 },
     ] },
   own: {
     optimizer: [

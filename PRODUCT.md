@@ -10,7 +10,7 @@ confirmed first and reversible whenever possible.
 - **Home PC owners and gamers** on Windows 10/11 laptops and desktops (including handhelds such as the ROG Ally, used
   with a controller). They want their PC healthy and up to date without six separate tools.
 - **Tinkerers** who open it often, read the numbers and want depth (per-thread CPU, SMART, services, startup items).
-- Languages: English, Spanish, Portuguese, Italian, French and Chinese.
+- Languages: English, Russian, Spanish, Portuguese, Italian, French, Chinese and Japanese.
 
 ## Surfaces and modes
 - Home (Mosaic and 3D views): **Experience**, a first glance at the machine, then a way in.

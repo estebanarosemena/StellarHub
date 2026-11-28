@@ -6,35 +6,35 @@ const { $, $$, anim, EASE, ic, esc, fmt1, fmtInt, tickers, state } = SH;
 const T = SH.tele, v = () => T.v, dash = '—';
 const f = (k, fn = x => Math.round(x), suf = '') => T.has(k) ? fn(T.v[k]) + suf : dash;
 const comp = id => SH.PC.components.find(x => x.id === id) || { name: id, title: '', rows: [] };
-const upt = s => { const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h >= 48 ? `${Math.floor(h / 24)} d ${h % 24} h` : `${h} h ${m} min`; };
-const t = SH.t;
+const upt = s => SH.fmtUptime(s);
+const t = SH.t, u = SH.unit;
 const CFG = {
   cpu: { big: () => [f('cpu'), t('% usage')], chart: { key: 'cpu', max: 100, label: t('Usage over the last minute') },
-    stats: () => [[t('Frequency'), f('cpuFreq', fmt1, ' GHz')], [t('Temperature'), T.has('cpuTemp') ? f('cpuTemp', undefined, ' °C') : t('not reported'),
+    stats: () => [[t('Frequency'), f('cpuFreq', fmt1, ' ' + u('GHz'))], [t('Temperature'), T.has('cpuTemp') ? f('cpuTemp', undefined, ' °C') : t('not reported'),
       T.has('cpuTemp') ? (T.v.cpuTempSrc && T.v.cpuTempSrc !== 'acpi' ? t('from {app}', { app: T.v.cpuTempSrc }) : '') : t('Windows does not report the processor temperature on this PC. Open LibreHardwareMonitor, HWiNFO (with shared memory on) or Core Temp and StellarHub will read it from there.')],
       [t('Processes'), f('procs', fmtInt)], [t('Busy threads'), t('{n} of {total}', { n: (v().threads || []).filter(x => x > .5).length, total: (v().threads || []).length })]],
     actions: [[t('View in Live Monitor'), 'monitor', 'cpu', 'monitor'], [t('What is using it'), 'monitor', 'processes', 'list']] },
   gpu: { big: () => [f('gpu'), t('% usage')], chart: { key: 'gpu', max: 100, label: t('Usage over the last minute') },
-    stats: () => [[t('Temperature'), f('gpuTemp', undefined, ' °C')], [t('Power draw'), f('gpuPower', undefined, ' W')], [t('Video memory'), T.has('vram') ? t('{used} of {total} GB', { used: fmt1(v().vram), total: v().vramTotal || '–' }) : dash], [t('Clock'), f('gpuClock', fmt1, ' GHz')]],
+    stats: () => [[t('Temperature'), f('gpuTemp', undefined, ' °C')], [t('Power draw'), f('gpuPower', undefined, ' ' + u('W'))], [t('Video memory'), T.has('vram') ? t('{used} of {total} GB', { used: fmt1(v().vram), total: v().vramTotal || '–' }) : dash], [t('Clock'), f('gpuClock', fmt1, ' ' + u('GHz'))]],
     actions: [[t('Check for a new driver'), 'drivers', 'updates', 'drivers'], [t('View in Live Monitor'), 'monitor', 'gpu', 'monitor']] },
   ram: { big: () => [f('ram', fmt1), t('of {n} GB in use', { n: Math.round(v().ramTotal || 0) })], chart: { key: 'ram', max: () => v().ramTotal || 16, label: t('Usage over the last minute') },
-    stats: () => [[t('In use'), T.has('ram') ? Math.round(v().ram / (v().ramTotal || 1) * 100) + '%' : dash], [t('Committed'), f('ramCommit', fmt1, ' GB')], [t('Cached'), f('ramCache', fmt1, ' GB')],
+    stats: () => [[t('In use'), T.has('ram') ? Math.round(v().ram / (v().ramTotal || 1) * 100) + '%' : dash], [t('Committed'), f('ramCommit', fmt1, ' ' + u('GB'))], [t('Cached'), f('ramCache', fmt1, ' ' + u('GB'))],
       [t('Slots'), comp('ram').slots ? t('{n} of {total} used', { n: comp('ram').modules, total: comp('ram').slots }) : dash]],
     actions: [[t('What is using the memory'), 'monitor', 'processes', 'list'], [t('View in Live Monitor'), 'monitor', 'memory', 'monitor']] },
   ssd: { big: () => [T.has('diskTotal') ? Math.round(v().diskTotal - v().diskUsed) : dash, t('GB free of {n} on C:', { n: v().diskTotal || '–' })], chart: { key: 'diskRead', label: t('Reads over the last minute (MB/s)') },
-    stats: () => [[t('Used'), T.has('diskUsed') ? Math.round(v().diskUsed / v().diskTotal * 100) + '%' : dash], [t('Read'), f('diskRead', fmtInt, ' MB/s')], [t('Write'), f('diskWrite', fmtInt, ' MB/s')], [t('Activity'), T.has('diskRead') ? (v().diskRead + v().diskWrite > 50 ? t('high') : t('low')) : dash]],
+    stats: () => [[t('Used'), T.has('diskUsed') ? Math.round(v().diskUsed / v().diskTotal * 100) + '%' : dash], [t('Read'), f('diskRead', fmtInt, ' ' + u('MB/s'))], [t('Write'), f('diskWrite', fmtInt, ' ' + u('MB/s'))], [t('Activity'), T.has('diskRead') ? (v().diskRead + v().diskWrite > 50 ? t('high') : t('low')) : dash]],
     actions: [[t('See what takes up space'), 'storage', 'map', 'storage'], [t('Free up space'), 'optimizer', 'clean', 'broom']] },
   display: { wide: true, actions: [[t('Test the screen'), 'tester', 'screen', 'display'], [t('View graphics'), 'monitor', 'gpu', 'monitor']] },
   /* the battery changes all the time: title and status come from live telemetry, not from the cached PC info */
   battery: { title: () => T.has('battery') ? (v().charging ? t('{pct}%, charging', { pct: Math.round(v().battery) }) : `${Math.round(v().battery)}%`) : null,
     liveRows: () => [['Status', v().charging ? SH.tc('battery', 'Plugged in') : SH.tc('battery', 'On battery')]],
     big: () => [f('battery'), v().charging ? t('% and charging') : t('% charge')],
-    stats: () => [[t('Health'), f('batteryHealth', undefined, '%')], [t('Power'), T.has('batteryPower') ? (v().batteryPower > 0 ? '+' : '') + fmt1(v().batteryPower) + ' W' : dash],
+    stats: () => [[t('Health'), f('batteryHealth', undefined, '%')], [t('Power'), T.has('batteryPower') ? (v().batteryPower > 0 ? '+' : '') + fmt1(v().batteryPower) + ' ' + u('W') : dash],
       [t('Time left'), T.has('batterySecs') ? upt(v().batterySecs) : (v().charging ? t('plugged in') : dash)], [t('Status'), v().charging ? SH.tc('battery', 'Plugged in') : SH.tc('battery', 'On battery')]],
     meter: () => ({ label: t('Capacity it keeps'), v: (v().batteryHealth || 0) / 100 }),
     actions: [[t('View the battery'), 'monitor', 'battery', 'battery']] },
   wifi: { big: () => [f('down', fmt1), t('Mb/s down')], chart: { key: 'down', label: t('Download over the last minute') },
-    stats: () => [[t('Upload'), f('up', fmt1, ' Mb/s')], [t('Latency'), f('ping', undefined, ' ms')], [t('Wi-Fi signal'), f('wifiSignal', undefined, '%')], [t('Link'), (comp('wifi').rows.find(r => r[0] === 'Link') || [, dash])[1]]],
+    stats: () => [[t('Upload'), f('up', fmt1, ' ' + u('Mb/s'))], [t('Latency'), f('ping', undefined, ' ' + u('ms'))], [t('Wi-Fi signal'), f('wifiSignal', undefined, '%')], [t('Link'), SH.localizeUnits((comp('wifi').rows.find(r => r[0] === 'Link') || [, dash])[1])]],
     actions: [[t('View the network'), 'monitor', 'network', 'monitor']] },
   audio: { big: () => [String(1 + ((comp('audio').rows[0] || [, ''])[1].split(',').filter(x => x.trim() && x.trim() !== '–').length)), t('audio devices')],
     list: () => [comp('audio').title, ...((comp('audio').rows[0] || [, ''])[1].split(',').map(s => s.trim()).filter(s => s && s !== '–'))].map(n => ['speaker', n, '']),
@@ -65,7 +65,7 @@ async function displaysHTML() {
     return `<figure class="cs-scr${d.internal ? ' internal' : ''}" style="--s:${scale};--ar:${d.w}/${d.h}" data-idx="${d.idx}">
       <div class="frame"><img alt="" data-thumb="${d.idx}"><span class="live">${t('live')}</span></div>${d.internal ? '<div class="base"></div>' : '<div class="stand"></div>'}
       <figcaption><b>${esc(d.internal ? t('Laptop screen') : t('External monitor'))}</b><span>${esc(name)}${d.inches ? `, ${d.inches}"` : ''}</span>
-      <span>${[`${d.w} × ${d.h}`, d.hz ? `${d.hz} Hz` : '', d.primary ? t('primary') : ''].filter(Boolean).join(', ')}</span></figcaption></figure>`;
+      <span>${[`${d.w} × ${d.h}`, d.hz ? `${d.hz} ${u('Hz')}` : '', d.primary ? t('primary') : ''].filter(Boolean).join(', ')}</span></figcaption></figure>`;
   }).join('')}</div>`;
 }
 async function refreshThumbs() {

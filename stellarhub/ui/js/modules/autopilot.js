@@ -6,6 +6,7 @@
 'use strict';
 (() => {
 const { $, $$, anim, EASE, ic, esc, fmt1, state } = SH;
+const U = SH.unit;
 const wait = ms => new Promise(r => setTimeout(r, ms));
 let REAL = false;                        // true inside the app: the Python engine runs everything
 let NA = { t: {}, c: {}, a: {} };        // what this PC/version can't do, with the reason (from the engine)
@@ -131,7 +132,7 @@ const TRIG = [
     { k: 'batteryBelow', t: tr('Battery below a level'), ic: 'battery', p: { pct: num(20, 5, 95, '%', tr('Below'), 5) }, say: p => tr('when the battery drops below {pct}%', { pct: p.pct }) },
   ]],
   ['Drives and files', [
-    { k: 'diskBelow', t: tr('Low free space on a drive'), ic: 'ssd', p: { drive: { type: 'select', def: 'C:', opts: DRIVES, label: tr('Drive') }, gb: num(50, 5, 500, 'GB', tr('with less than'), 5) }, say: p => tr('when {drive} has less than {gb} GB free', { drive: p.drive, gb: p.gb }) },
+    { k: 'diskBelow', t: tr('Low free space on a drive'), ic: 'ssd', p: { drive: { type: 'select', def: 'C:', opts: DRIVES, label: tr('Drive') }, gb: num(50, 5, 500, U('GB'), tr('with less than'), 5) }, say: p => tr('when {drive} has less than {gb} GB free', { drive: p.drive, gb: p.gb }) },
     { k: 'download', t: tr('When a download finishes'), ic: 'download', p: { folder: { type: 'text', def: 'Downloads', label: tr('In the folder'), ph: 'Downloads' } }, say: p => tr('when a download finishes in {folder}', { folder: p.folder || tr('a folder') }) },
   ]],
   ['New versions', [
@@ -171,8 +172,8 @@ const COND = [
     { k: 'onWifi', t: tr('Connected to a specific Wi-Fi'), ic: 'wifi', p: { ssid: { type: 'text', def: tr('Home'), label: tr('Network'), ph: tr('Network name') } }, say: p => tr('you’re on the “{ssid}” Wi-Fi', { ssid: p.ssid || '…' }) },
   ]],
   ['Space', [
-    { k: 'junk', t: tr('Plenty of junk'), ic: 'broom', p: { gb: num(5, 1, 100, 'GB', tr('At least')) }, say: p => tr('there are {gb} GB of junk or more', { gb: p.gb }) },
-    { k: 'diskFree', t: tr('Running low on space'), ic: 'ssd', p: { drive: { type: 'select', def: 'C:', opts: DRIVES, label: tr('Drive') }, gb: num(100, 5, 900, 'GB', tr('with less than'), 5) }, say: p => tr('{drive} has less than {gb} GB free', { drive: p.drive, gb: p.gb }) },
+    { k: 'junk', t: tr('Plenty of junk'), ic: 'broom', p: { gb: num(5, 1, 100, U('GB'), tr('At least')) }, say: p => tr('there are {gb} GB of junk or more', { gb: p.gb }) },
+    { k: 'diskFree', t: tr('Running low on space'), ic: 'ssd', p: { drive: { type: 'select', def: 'C:', opts: DRIVES, label: tr('Drive') }, gb: num(100, 5, 900, U('GB'), tr('with less than'), 5) }, say: p => tr('{drive} has less than {gb} GB free', { drive: p.drive, gb: p.gb }) },
   ]],
   ['System', [
     { k: 'admin', t: tr('Administrator rights available'), ic: 'shield', say: () => tr('StellarHub is in administrator mode') },
@@ -189,7 +190,7 @@ const ACT = [
     { k: 'oldDl', t: tr('Clear out old downloads'), ic: 'download', mod: 'Super Optimizer', est: 20, p: { days: num(30, 7, 365, tr('days'), tr('Older than')), to: { type: 'select', def: 'bin', opts: [['bin', tr('to the Recycle Bin')], ['quar', tr('to quarantine')]], label: tr('Move them') } },
       say: p => p.to === 'bin' ? tr('move downloads older than {days} days to the Recycle Bin', { days: p.days }) : tr('move downloads older than {days} days to quarantine', { days: p.days }) },
     { k: 'quar', t: tr('Empty the quarantine'), ic: 'restore', mod: 'Program Remover', est: 15, p: { age: num(14, 0, 90, tr('days'), tr('Anything older than')) }, say: p => tr('remove anything older than {days} days from quarantine', { days: p.age }) },
-    { k: 'dupes', t: tr('Find duplicate files'), ic: 'copy', mod: 'Storage Checker', est: 240, p: { min: num(50, 1, 2000, 'MB', tr('Larger than'), 10) }, say: p => tr('find duplicates larger than {mb} MB', { mb: p.min }) },
+    { k: 'dupes', t: tr('Find duplicate files'), ic: 'copy', mod: 'Storage Checker', est: 240, p: { min: num(50, 1, 2000, U('MB'), tr('Larger than'), 10) }, say: p => tr('find duplicates larger than {mb} MB', { mb: p.min }) },
   ]],
   ['Drivers', [
     { k: 'drvScan', t: tr('Check for new drivers'), ic: 'drivers', mod: 'Driver Updater', est: 60, say: () => tr('check for new drivers') },
@@ -212,7 +213,7 @@ const ACT = [
       say: p => tr('check Windows with {tool}', { tool: p.kind === 'both' ? tr('SFC and DISM') : p.kind.toUpperCase() }) },
     { k: 'net', t: tr('Repair the network'), ic: 'globe', mod: 'Super Optimizer', est: 20, p: { kind: { type: 'select', def: 'dns', opts: [['dns', tr('Flush the DNS cache')]], legacy: [['full', tr('Full network reset (no longer runs on its own)')]] } }, say: p => p.kind === 'full' ? tr('flush the DNS cache (a full network reset is never run by a routine)') : tr('flush the DNS cache') },
     { k: 'explorer', t: tr('Restart File Explorer'), ic: 'folder', mod: 'Super Optimizer', est: 5, say: () => tr('restart File Explorer') },
-    { k: 'scanDisk', t: tr('Analyze a drive'), ic: 'storage', mod: 'Storage Checker', est: 60, p: { drive: { type: 'select', def: 'C:', opts: DRIVES, label: tr('Drive') }, gb: num(10, 1, 200, 'GB', tr('Warn if it grew by more than')) }, say: p => tr('analyze {drive} and warn if it grew by more than {gb} GB', { drive: p.drive, gb: p.gb }) },
+    { k: 'scanDisk', t: tr('Analyze a drive'), ic: 'storage', mod: 'Storage Checker', est: 60, p: { drive: { type: 'select', def: 'C:', opts: DRIVES, label: tr('Drive') }, gb: num(10, 1, 200, U('GB'), tr('Warn if it grew by more than')) }, say: p => tr('analyze {drive} and warn if it grew by more than {gb} GB', { drive: p.drive, gb: p.gb }) },
   ]],
   ['Performance', [
     { k: 'plan', t: tr('Change the power plan'), ic: 'optimizer', mod: 'Super Optimizer', est: 2, p: { plan: { type: 'select', def: 'high', opts: [['saver', tr('Power saver')], ['balanced', tr('Balanced')], ['high', tr('High performance')], ['max', tr('Maximum')]] } },
@@ -797,7 +798,7 @@ function evalCond(x) {
   }
   return [true, ''];
 }
-const fmtDur = s => s < 60 ? `${Math.max(1, Math.round(s))} s` : `${Math.round(s / 60)} min`;
+const fmtDur = s => s < 60 ? `${Math.max(1, Math.round(s))} ${U('s')}` : `${Math.round(s / 60)} ${U('min')}`;
 async function dryRun(r) {
   const box = $('#apDryP', rEl); if (!box) return;
   let ev, ok, notes;

@@ -1,13 +1,13 @@
 The fonts in this folder are licensed under the SIL Open Font License, Version 1.1.
 
-unbounded-latin.woff2, unbounded-latin-ext.woff2:
+unbounded-latin.woff2, unbounded-latin-ext.woff2, unbounded-cyrillic.woff2:
 Copyright 2022 The Unbounded Project Authors (https://github.com/googlefonts/unbounded)
 
 unbounded-zero.woff2 (a modified subset of Unbounded: only the digit zero, with a slash added so it can't be
 mistaken for the letter O; it carries no font name):
 Copyright 2022 The Unbounded Project Authors (https://github.com/googlefonts/unbounded)
 
-onest-latin.woff2, onest-latin-ext.woff2:
+onest-latin.woff2, onest-latin-ext.woff2, onest-cyrillic.woff2:
 Copyright 2021 The Onest Project Authors (https://github.com/simpals/onest)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

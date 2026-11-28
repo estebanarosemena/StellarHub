@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 UI = Path(__file__).resolve().parent.parent / "stellarhub" / "ui"
-LANGS = ["es", "pt", "it", "fr", "zh", "ja"]
+LANGS = ["ru", "es", "pt", "it", "fr", "zh", "ja"]
 
 
 def dictionary(lang):

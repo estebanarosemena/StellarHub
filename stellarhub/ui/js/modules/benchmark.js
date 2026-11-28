@@ -6,7 +6,7 @@
 'use strict';
 (() => {
 const { $, $$, anim, EASE, Spring, tickers, ic, esc, fmt1, fmtInt, state } = SH;
-const t = SH.t;
+const t = SH.t, U = SH.unit;
 const LOCALE = (SH.i18n && SH.i18n.locale) || 'en-US';
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const isMin = () => SH.effInt() === 'min';
@@ -150,8 +150,8 @@ function teleRec() {
     gpu: () => ({ clockMax: max('gpuClock'), clockAvg: avg('gpuClock'), tempMax: max('gpuTemp'), powerMax: max('gpuPower'), loadAvg: avg('gpu') }) };
 }
 const teleFmt = {
-  ghz: v => nil(v) ? DASH : `${fmt1(v)}<small>GHz</small>`, c: v => nil(v) ? DASH : `${fmtInt(v)}<small>°C</small>`,
-  w: v => nil(v) ? DASH : `${fmtInt(v)}<small>W</small>`, pct: v => nil(v) ? DASH : `${fmtInt(v)}<small>%</small>`,
+  ghz: v => nil(v) ? DASH : `${fmt1(v)}<small>${U('GHz')}</small>`, c: v => nil(v) ? DASH : `${fmtInt(v)}<small>°C</small>`,
+  w: v => nil(v) ? DASH : `${fmtInt(v)}<small>${U('W')}</small>`, pct: v => nil(v) ? DASH : `${fmtInt(v)}<small>%</small>`,
 };
 /* "while testing" panel for the processor and the graphics card: live during a run, the summary afterwards */
 function telePanel(kind) {
@@ -516,7 +516,7 @@ function ringHTML() {
     <circle class="trk" cx="110" cy="110" r="${RING_R}" stroke-dasharray="${RING_L} 999" transform="rotate(126 110 110)"/>
     <circle class="val" id="bmArc" cx="110" cy="110" r="${RING_R}" stroke-dasharray="${RING_L} 999" stroke-dashoffset="${RING_L}" transform="rotate(126 110 110)"/>
     <g class="sat" id="bmSat"><circle cx="110" cy="6" r="3.4"/></g>
-  </svg><div class="bm-rc"><span class="bm-rl">StellarHub Score</span><b id="bmScore">${DASH}</b><span class="bm-rt" id="bmTier"></span></div></div>`;
+  </svg><div class="bm-rc"><span class="bm-rl">${t('StellarHub Score')}</span><b id="bmScore">${DASH}</b><span class="bm-rt" id="bmTier"></span></div></div>`;
 }
 const ring = { v: new Spring(0, 60, 14), sat: 0, el: null };
 function ringSet(frac, snap) { ring.v.t = clamp(frac, 0, 1); ring.dirty = true; if (snap) ring.v.set(ring.v.t); }
@@ -628,13 +628,13 @@ async function runFull() {
       if (cancelled) throw Object.assign(new Error('cancelled'), { cancelled: true });
       const s = FULL_STEPS[i]; const st = stepEl(i); st.classList.add('on'); rec = teleRec(); sp.reset(); $('#lvV', mid).textContent = DASH; $('#lvU', mid).textContent = '';
       if (s.k === 'gpu') {
-        res.gpu = await gpuTest($('#lvStage', mid), (scene, fps, frac) => { setStep(i, frac); live(s.n, scene === 'nebula' ? t('Nebula: shaders and fill rate') : t('Asteroid field: geometry'), fps, 'fps'); }, c => { cur = c; }, true);
+        res.gpu = await gpuTest($('#lvStage', mid), (scene, fps, frac) => { setStep(i, frac); live(s.n, scene === 'nebula' ? t('Nebula: shaders and fill rate') : t('Asteroid field: geometry'), fps, U('fps')); }, c => { cur = c; }, true);
       } else {
         const args = s.k === 'cpu' ? [.6] : s.k === 'memory' ? [.7] : [null, 256, .45];
         cur = engineJob(s.k, args, m => { const d = m.data || {}; setStep(i, m.pct || 0);
-          if (s.k === 'cpu') live(s.n, (d.phase === 'single' ? t('One thread: {test}', { test: KN[d.kernel] || '' }) : t('All {n} threads: {test}', { n: (d.perThread || []).length || '', test: KN[d.kernel] || '' })), d.rate, 'MB/s');
-          else if (s.k === 'memory') live(s.n, MEMN[d.phase] || t('Preparing'), d.value, d.phase === 'latency' ? 'ns' : 'GB/s');
-          else live(s.n, d.phase === 'prepare' ? t('Writing the test file') : `${(DT.find(x => x[0] === d.phase) || [, ''])[1]} ${d.kind === 'write' ? t('write') : t('read')}`, d.rate, 'MB/s'); });
+          if (s.k === 'cpu') live(s.n, (d.phase === 'single' ? t('One thread: {test}', { test: KN[d.kernel] || '' }) : t('All {n} threads: {test}', { n: (d.perThread || []).length || '', test: KN[d.kernel] || '' })), d.rate, U('MB/s'));
+          else if (s.k === 'memory') live(s.n, MEMN[d.phase] || t('Preparing'), d.value, d.phase === 'latency' ? U('ns') : U('GB/s'));
+          else live(s.n, d.phase === 'prepare' ? t('Writing the test file') : `${(DT.find(x => x[0] === d.phase) || [, ''])[1]} ${d.kind === 'write' ? t('write') : t('read')}`, d.rate, U('MB/s')); });
         res[s.k] = await cur;
       }
       if (cancelled || !res[s.k]) throw Object.assign(new Error('cancelled'), { cancelled: true });
@@ -774,7 +774,7 @@ const CPU = {
       ${tile(t('Single-thread'), fmtN(r.scoreSingle), '', { sub: t('points') })}${tile(t('Multi-thread'), fmtN(r.scoreMulti), '', { sub: t('points') })}
       ${tile(t('Scaling'), nil(r.scaling) ? DASH : fmt1(r.scaling) + '×', '', { sub: t('{n} threads vs one', { n: r.threads }) })}</div></div>
     <div class="bm-r3"><div class="bm-kt"><div class="bm-kh"><span>${t('Test')}</span><span>${t('One thread')}</span><span>${t('All threads')}</span></div>
-      ${Object.keys(KN).map(k => `<div class="bm-kr"><span>${KN[k]}</span><b>${fmtV(r.single[k])}<small>MB/s</small></b><b>${fmtV(r.multi[k])}<small>MB/s</small></b></div>`).join('')}</div>
+      ${Object.keys(KN).map(k => `<div class="bm-kr"><span>${KN[k]}</span><b>${fmtV(r.single[k])}<small>${U('MB/s')}</small></b><b>${fmtV(r.multi[k])}<small>${U('MB/s')}</small></b></div>`).join('')}</div>
       <div class="bm-cw"><div class="bm-kh"><span>${t('What each core delivered')}</span></div>${coresHTML(r.perCore)}</div></div>${lastLine(run)}`,
   live: () => `${liveHead()}<div class="bm-lsteps">${[t('One thread'), t('All threads')].map((n, i) => `<div class="bm-ls" data-ph="${i ? 'multi' : 'single'}"><b>${n}</b><div>${Object.keys(KN).map(k => `<span data-k="${k}">${KN[k]}<em>${DASH}</em></span>`).join('')}</div></div>`).join('')}</div>
     <div class="bm-lcores" data-cores><span class="faint">${t('Each thread shows up here once all of them run at once.')}</span></div>`,
@@ -783,7 +783,7 @@ const CPU = {
     let lastK = null;
     try {
       const j = engineJob('cpu', [1], m => { const d = m.data || {};
-        liveSet(body, { k: d.phase === 'single' ? t('One thread: {test}', { test: KN[d.kernel] || '' }) : t('All {n} threads: {test}', { n: (d.perThread || []).length, test: KN[d.kernel] || '' }), v: d.rate, u: 'MB/s', p: m.pct });
+        liveSet(body, { k: d.phase === 'single' ? t('One thread: {test}', { test: KN[d.kernel] || '' }) : t('All {n} threads: {test}', { n: (d.perThread || []).length, test: KN[d.kernel] || '' }), v: d.rate, u: U('MB/s'), p: m.pct });
         const key = d.phase + d.kernel; const cell = $(`.bm-ls[data-ph="${d.phase}"] [data-k="${d.kernel}"]`, body);
         if (lastK && lastK !== key) { const prev = $('.bm-ls span.on', body); if (prev) { prev.classList.remove('on'); prev.classList.add('done'); } }
         if (cell) { cell.classList.add('on'); if (!nil(d.rate)) $('em', cell).textContent = fmtV(d.rate); } lastK = key;
@@ -803,16 +803,16 @@ const GPU = {
   skeleton: () => `<div class="bm-gw"><div class="bm-gs sk"></div><div class="bm-gr">${[0, 1, 2].map(() => `<div class="bm-tile">${skLine('50%', 9)}<span class="sk" style="display:block;height:24px;width:60%;margin-top:12px"></span></div>`).join('')}</div></div>`,
   frame: (inner, right) => `<div class="bm-gw"><div class="bm-gs" data-stage>${inner}</div><div class="bm-gr">${right}</div></div>`,
   idle() { return this.frame(`<div class="bm-gph">${ic('gpu')}<b>${t('Two scenes rendered at 1920 × 1080')}</b><span>${t('A raymarched nebula stresses shaders and fill rate; an asteroid field with millions of triangles stresses geometry. The score comes from the sustained frame rate.')}</span><span class="chip">${ic('clock')}${t('About 20 seconds')}</span></div>`,
-    `${tile(t('Nebula'), DASH, 'fps', { sub: t('shaders and fill rate') })}${tile(t('Asteroid field'), DASH, 'fps', { sub: t('geometry') })}`); },
+    `${tile(t('Nebula'), DASH, U('fps'), { sub: t('shaders and fill rate') })}${tile(t('Asteroid field'), DASH, U('fps'), { sub: t('geometry') })}`); },
   result(r, run) { return this.frame(`<div class="bm-gph done">${bigScore(r.score)}<span class="faint bm-gren">${ic('gpu')}${esc(r.renderer || '')}</span></div>`,
-    `${tile(t('Nebula'), fmtV(r.fill), 'fps', { sub: t('shaders and fill rate') })}${tile(t('Asteroid field'), fmtV(r.geo), 'fps', { sub: t('geometry') })}${tile(t('Resolution'), esc(r.res || '1920 × 1080'), '', { sub: t('rendered offscreen, shown scaled') })}`) + lastLine(run); },
-  live() { return this.frame('', `<div class="bm-gl2">${liveHead()}</div>${tile(t('Nebula'), DASH, 'fps', { cls: 'gn' })}${tile(t('Asteroid field'), DASH, 'fps', { cls: 'ga' })}`); },
+    `${tile(t('Nebula'), fmtV(r.fill), U('fps'), { sub: t('shaders and fill rate') })}${tile(t('Asteroid field'), fmtV(r.geo), U('fps'), { sub: t('geometry') })}${tile(t('Resolution'), esc(r.res || '1920 × 1080'), '', { sub: t('rendered offscreen, shown scaled') })}`) + lastLine(run); },
+  live() { return this.frame('', `<div class="bm-gl2">${liveHead()}</div>${tile(t('Nebula'), DASH, U('fps'), { cls: 'gn' })}${tile(t('Asteroid field'), DASH, U('fps'), { cls: 'ga' })}`); },
   async exec(body, L, setCur) {
     const rec = teleRec(); const off = SH.tele.on(v => teleShow(CT.gpu.el, 'gpu', v, true));
     try {
       const r = await gpuTest($('[data-stage]', body), (scene, fps, frac) => {
-        liveSet(body, { k: scene === 'nebula' ? t('Nebula: shaders and fill rate') : t('Asteroid field: geometry'), v: fps, u: 'fps', p: frac });
-        const tl = $(scene === 'nebula' ? '.gn b' : '.ga b', body); if (tl && !nil(fps)) tl.innerHTML = `${fmtV(fps)}<small>fps</small>`;
+        liveSet(body, { k: scene === 'nebula' ? t('Nebula: shaders and fill rate') : t('Asteroid field: geometry'), v: fps, u: U('fps'), p: frac });
+        const tl = $(scene === 'nebula' ? '.gn b' : '.ga b', body); if (tl && !nil(fps)) tl.innerHTML = `${fmtV(fps)}<small>${U('fps')}</small>`;
       }, setCur, false);
       if (r) r.tele = rec.gpu(); return r;
     } finally { rec.stop(); off(); }
@@ -828,14 +828,14 @@ const MEM = {
   idle: () => idleHTML('ram', t('Bandwidth and latency'), t('How fast data moves between the processor and memory, and how long a single random access takes.'), t('A few seconds')),
   result(r, run) {
     const ri = ramInfo(); const R = { copy: 24, read: 52, write: 31 };
-    const bars = ['copy', 'read', 'write'].map(k => `<div class="bm-mb"><span>${MEMN[k]}</span><i><u style="--v:${clamp(r[k] / (R[k] * 2), 0, 1).toFixed(3)}"></u><s style="left:50%" title="${esc(t('A mid-range PC'))}"></s></i><b>${fmtV(r[k])}<small>GB/s</small></b></div>`).join('');
-    return `<div class="bm-r2">${bigScore(r.score)}<div class="bm-tiles">${tile(t('Read'), fmtV(r.read), 'GB/s')}${tile(t('Write'), fmtV(r.write), 'GB/s')}${tile(MEMN.copy, fmtV(r.copy), 'GB/s')}${tile(t('Latency'), fmtV(r.latency), 'ns', { sub: t('lower is better') })}</div></div>
+    const bars = ['copy', 'read', 'write'].map(k => `<div class="bm-mb"><span>${MEMN[k]}</span><i><u style="--v:${clamp(r[k] / (R[k] * 2), 0, 1).toFixed(3)}"></u><s style="left:50%" title="${esc(t('A mid-range PC'))}"></s></i><b>${fmtV(r[k])}<small>${U('GB/s')}</small></b></div>`).join('');
+    return `<div class="bm-r2">${bigScore(r.score)}<div class="bm-tiles">${tile(t('Read'), fmtV(r.read), U('GB/s'))}${tile(t('Write'), fmtV(r.write), U('GB/s'))}${tile(MEMN.copy, fmtV(r.copy), U('GB/s'))}${tile(t('Latency'), fmtV(r.latency), U('ns'), { sub: t('lower is better') })}</div></div>
       <div class="bm-mbars"><div class="bm-kh"><span>${t('Compared with a mid-range PC')}</span><span class="faint">${t('the mark is a mid-range PC')}</span></div>${bars}</div>
       ${ri.mods === 1 && ri.slots > 1 ? `<div class="bm-tip">${ic('info')}<span>${t('Your PC has one memory module and a free slot. A second, identical module enables dual channel and roughly doubles the bandwidth.')}</span></div>` : ''}${lastLine(run)}`;
   },
   live: () => `${liveHead()}<div class="bm-lsteps one"><div class="bm-ls"><div>${['copy', 'read', 'write', 'latency'].map(k => `<span data-k="${k}">${MEMN[k]}<em>${DASH}</em></span>`).join('')}</div></div></div>`,
   async exec(body, L, setCur) {
-    const j = engineJob('memory', [1], m => { const d = m.data || {}; const u = d.phase === 'latency' ? 'ns' : 'GB/s';
+    const j = engineJob('memory', [1], m => { const d = m.data || {}; const u = d.phase === 'latency' ? U('ns') : U('GB/s');
       liveSet(body, { k: MEMN[d.phase] || '', v: d.value, u, p: m.pct });
       $$('.bm-ls span', body).forEach(s => { const on = s.dataset.k === d.phase; if (on) s.classList.add('on'); else if (s.classList.contains('on')) { s.classList.remove('on'); s.classList.add('done'); } });
       if (!nil(d.value)) { const c = $(`[data-k="${d.phase}"] em`, body); if (c) c.textContent = fmtV(d.value) + ' ' + u; } });
@@ -847,17 +847,17 @@ const MEM = {
 const DK = { drives: null, drive: null, size: 1024 };
 const DISK = {
   icon: 'ssd', title: t('Disk'), hw: () => comp('ssd').title,
-  opts: `<label class="field bm-sel">${ic('ssd')}<select data-drive><option>…</option></select></label><div class="seg bm-size" data-size><span class="ind"></span>${[[256, '256 MB'], [1024, '1 GB'], [4096, '4 GB']].map(([v, n]) => `<button data-v="${v}"${v === 1024 ? ' class="on"' : ''}>${n}</button>`).join('')}</div>`,
+  opts: `<label class="field bm-sel">${ic('ssd')}<select data-drive><option>…</option></select></label><div class="seg bm-size" data-size><span class="ind"></span>${[[256, `256 ${U('MB')}`], [1024, `1 ${U('GB')}`], [4096, `4 ${U('GB')}`]].map(([v, n]) => `<button data-v="${v}"${v === 1024 ? ' class="on"' : ''}>${n}</button>`).join('')}</div>`,
   side: `<div class="pan bm-note" data-asm><h4>${t('How it is measured')}</h4><p>${t('Like CrystalDiskMark: a temporary file on the chosen drive, read and written without the Windows cache. It is deleted when the test ends, also if you cancel.')}</p></div>`,
   histSub: r => t('{drive} drive, {a} MB/s read', { drive: r.drive || '', a: fmtV(r.tests && r.tests.seq_q8 && r.tests.seq_q8.read) }),
   idle: () => DISK.grid(null) + `<div class="bm-last faint">${ic('info')}${t('Pick a drive and a file size, then run the test. Bigger files are less flattered by the drive cache.')}</div>`,
   grid(r, live) {
     const T = (r && r.tests) || {}; const mx = 7000;
     return `<div class="bm-dg${live ? ' live' : ''}"><div class="bm-dh"><span></span><span>${t('Read')}</span><span>${t('Write')}</span></div>${DT.map(([k, code, desc]) => `<div class="bm-dr" data-t="${k}"><div class="bm-dn"><b>${code}</b><span>${desc}</span></div>${['read', 'write'].map(kd => { const v = T[k] && T[k][kd]; const ex = T[k] && (T[k][kd + 'Iops'] ? t('{n} IOPS', { n: fmtInt(T[k][kd + 'Iops']) }) : T[k][kd + 'Lat'] ? t('{n} µs', { n: fmtV(T[k][kd + 'Lat']) }) : '');
-      return `<div class="bm-dc2 ${kd}" data-kd="${kd}"><i style="--v:${nil(v) ? 0 : clamp(Math.log10(1 + v) / Math.log10(1 + mx), 0, 1).toFixed(3)}"></i><b>${nil(v) ? DASH : fmtV(v)}<small>MB/s</small></b><em>${ex || ''}</em></div>`; }).join('')}</div>`).join('')}</div>`;
+      return `<div class="bm-dc2 ${kd}" data-kd="${kd}"><i style="--v:${nil(v) ? 0 : clamp(Math.log10(1 + v) / Math.log10(1 + mx), 0, 1).toFixed(3)}"></i><b>${nil(v) ? DASH : fmtV(v)}<small>${U('MB/s')}</small></b><em>${ex || ''}</em></div>`; }).join('')}</div>`).join('')}</div>`;
   },
   result(r, run) { const q1 = (r.tests || {}).rnd_q1 || {};
-    return `<div class="bm-dtop">${bigScore(r.score)}<div class="bm-dmeta">${tile(t('Drive'), esc(r.drive || ''), '', { sub: t('{size} test file', { size: r.sizeMb >= 1024 ? `${fmtInt(r.sizeMb / 1024)} GB` : `${fmtInt(r.sizeMb)} MB` }) })}${tile(t('Access time'), fmtV(q1.readLat), 'µs', { sub: t('one random read, lower is better') })}</div></div>${DISK.grid(r)}${lastLine(run)}`; },
+    return `<div class="bm-dtop">${bigScore(r.score)}<div class="bm-dmeta">${tile(t('Drive'), esc(r.drive || ''), '', { sub: t('{size} test file', { size: r.sizeMb >= 1024 ? `${fmtInt(r.sizeMb / 1024)} ${U('GB')}` : `${fmtInt(r.sizeMb)} ${U('MB')}` }) })}${tile(t('Access time'), fmtV(q1.readLat), U('µs'), { sub: t('one random read, lower is better') })}</div></div>${DISK.grid(r)}${lastLine(run)}`; },
   live: () => `${liveHead()}${DISK.grid(null, true)}`,
   init(el) {
     const seg = $('[data-size]', el); requestAnimationFrame(() => SH.placeSeg(seg, true));
@@ -865,7 +865,7 @@ const DISK = {
     const sel = $('[data-drive]', el); sel.addEventListener('change', () => { DK.drive = sel.value; });
     (async () => {
       let L = null; if (REAL) { try { L = await SH.engine('benchmark', 'drives'); } catch (e) { console.error(e); } }
-      DK.drives = L || [{ letter: 'C:', label: 'Windows', free: 361e9, total: 953e9, system: true }, { letter: 'D:', label: 'Games', free: 412e9, total: 1000e9, system: false }];
+      DK.drives = L || [{ letter: 'C:', label: 'Windows', free: 361e9, total: 953e9, system: true }, { letter: 'D:', label: t('Games'), free: 412e9, total: 1000e9, system: false }];
       DK.drive = DK.drive || (DK.drives[0] || {}).letter || 'C:';
       sel.innerHTML = DK.drives.map(d => `<option value="${esc(d.letter)}"${d.letter === DK.drive ? ' selected' : ''}>${esc(d.label ? t('{drive} {label}, {free} free', { drive: d.letter, label: d.label, free: SH.fmtBytes(d.free) }) : t('{drive}, {free} free', { drive: d.letter, free: SH.fmtBytes(d.free) }))}</option>`).join('');
       sel.dispatchEvent(new Event('change'));
@@ -874,11 +874,11 @@ const DISK = {
   async exec(body, L, setCur) {
     const drive = DK.drive || 'C:';
     const j = engineJob('disk', [drive, DK.size, 1], m => { const d = m.data || {};
-      if (d.phase === 'prepare') liveSet(body, { k: t('Writing a {size} test file on {drive}', { size: DK.size >= 1024 ? `${DK.size / 1024} GB` : `${DK.size} MB`, drive }), v: d.rate, u: 'MB/s', p: m.pct });
-      else { const code = (DT.find(x => x[0] === d.phase) || [, ''])[1]; liveSet(body, { k: `${code} ${d.kind === 'write' ? t('write') : t('read')}`, v: d.rate ?? d.value, u: 'MB/s', p: m.pct });
+      if (d.phase === 'prepare') liveSet(body, { k: t('Writing a {size} test file on {drive}', { size: DK.size >= 1024 ? `${DK.size / 1024} ${U('GB')}` : `${DK.size} ${U('MB')}`, drive }), v: d.rate, u: U('MB/s'), p: m.pct });
+      else { const code = (DT.find(x => x[0] === d.phase) || [, ''])[1]; liveSet(body, { k: `${code} ${d.kind === 'write' ? t('write') : t('read')}`, v: d.rate ?? d.value, u: U('MB/s'), p: m.pct });
         $$('.bm-dc2.on', body).forEach(x => { if (!(x.closest(`[data-t="${d.phase}"]`) && x.dataset.kd === d.kind)) { x.classList.remove('on'); x.classList.add('done'); } });
         const cell = $(`[data-t="${d.phase}"] [data-kd="${d.kind}"]`, body);
-        if (cell) { cell.classList.add('on'); const v = d.value ?? d.rate; if (!nil(v)) { $('b', cell).innerHTML = `${fmtV(v)}<small>MB/s</small>`; $('i', cell).style.setProperty('--v', clamp(Math.log10(1 + v) / Math.log10(7001), 0, 1).toFixed(3)); } if (!nil(d.value)) cell.classList.add('done'); } } });
+        if (cell) { cell.classList.add('on'); const v = d.value ?? d.rate; if (!nil(v)) { $('b', cell).innerHTML = `${fmtV(v)}<small>${U('MB/s')}</small>`; $('i', cell).style.setProperty('--v', clamp(Math.log10(1 + v) / Math.log10(7001), 0, 1).toFixed(3)); } if (!nil(d.value)) cell.classList.add('done'); } } });
     setCur(j); return await j;
   },
 };
@@ -887,15 +887,15 @@ const DISK = {
 const NET = {
   icon: 'globe', title: t('Internet speed'), hw: () => comp('wifi').title, runLabel: t('Start the test'),
   side: `<div class="pan bm-note" data-asm><h4>${t('Who measures it')}</h4><p>${t('The test uses speed.cloudflare.com, Cloudflare’s public speed test. It only starts when you press the button, and uses up to about 600 MB of data on very fast connections.')}</p></div>`,
-  histSub: r => t('{a} ms latency, {b} Mbps up', { a: fmtV(r.latency), b: fmtV(r.up) }), metric: r => r.down, metricUnit: 'Mbps', metricFmt: v => `${fmtV(v)} Mbps`,
+  histSub: r => t('{a} ms latency, {b} Mbps up', { a: fmtV(r.latency), b: fmtV(r.up) }), metric: r => r.down, metricUnit: U('Mbps'), metricFmt: v => `${fmtV(v)} ${U('Mbps')}`,
   scale(r) {
     const pos = v => clamp(Math.log10(Math.max(1, v || 0)) / Math.log10(2000), 0, 1).toFixed(3);
     return `<div class="bm-nsc"><div class="bm-kh"><span>${t('Speed')}</span><span class="faint">${t('logarithmic scale')}</span></div>${[['down', t('Download'), 'download'], ['up', t('Upload'), 'upload']].map(([k, n, i]) =>
-      `<div class="bm-ns ${k}" data-k="${k}"><span>${ic(i)}${n}</span><i><u style="--v:${r ? pos(r[k]) : 0}"></u></i><b>${r && !nil(r[k]) ? fmtV(r[k]) : DASH}<small>Mbps</small></b></div>`).join('')}
+      `<div class="bm-ns ${k}" data-k="${k}"><span>${ic(i)}${n}</span><i><u style="--v:${r ? pos(r[k]) : 0}"></u></i><b>${r && !nil(r[k]) ? fmtV(r[k]) : DASH}<small>${U('Mbps')}</small></b></div>`).join('')}
       <div class="bm-nticks">${[[1, '1'], [10, '10'], [100, '100'], [1000, '1,000']].map(([v, l]) => `<span style="left:${(pos(v) * 100).toFixed(1)}%">${l}</span>`).join('')}</div></div>`;
   },
   tiles(r, live) {
-    return `<div class="bm-nt${live ? ' live' : ''}">${[['latency', t('Latency'), 'ms', 'clock'], ['jitter', t('Jitter'), 'ms', 'wave2'], ['down', t('Download'), 'Mbps', 'download'], ['up', t('Upload'), 'Mbps', 'upload']].map(([k, n, u, i]) =>
+    return `<div class="bm-nt${live ? ' live' : ''}">${[['latency', t('Latency'), U('ms'), 'clock'], ['jitter', t('Jitter'), U('ms'), 'wave2'], ['down', t('Download'), U('Mbps'), 'download'], ['up', t('Upload'), U('Mbps'), 'upload']].map(([k, n, u, i]) =>
       `<div class="bm-tile" data-k="${k}"><span>${ic(i)}${n}</span><b>${r && !nil(r[k]) ? fmtV(r[k]) : DASH}<small>${u}</small></b></div>`).join('')}</div>`;
   },
   idle: () => `${idleHTML('globe', t('Latency, download and upload'), t('Nothing runs until you press “Start the test”. It measures your connection to the nearest Cloudflare server.'), t('About 20 seconds'))}`,
@@ -909,10 +909,10 @@ const NET = {
   async exec(body, L, setCur) {
     const j = engineJob('network', [1], m => { const d = m.data || {};
       const k = d.phase === 'latency' ? t('Latency') : d.phase === 'down' ? t('Download') : d.phase === 'up' ? t('Upload') : t('Connecting to speed.cloudflare.com');
-      liveSet(body, { k, v: d.rate ?? d.value, u: d.phase === 'latency' ? 'ms' : 'Mbps', p: m.pct });
+      liveSet(body, { k, v: d.rate ?? d.value, u: d.phase === 'latency' ? U('ms') : U('Mbps'), p: m.pct });
       $$('.bm-nt .bm-tile', body).forEach(x => x.classList.toggle('on', x.dataset.k === d.phase));
-      const tl = $(`.bm-nt [data-k="${d.phase}"] b`, body); const v = d.rate ?? d.value; if (tl && !nil(v)) tl.innerHTML = `${fmtV(v)}<small>${d.phase === 'latency' ? 'ms' : 'Mbps'}</small>`;
-      const sb = $(`.bm-ns[data-k="${d.phase}"]`, body); if (sb && !nil(v)) { $('u', sb).style.setProperty('--v', clamp(Math.log10(Math.max(1, v)) / Math.log10(2000), 0, 1).toFixed(3)); $('b', sb).innerHTML = `${fmtV(v)}<small>Mbps</small>`; } });
+      const tl = $(`.bm-nt [data-k="${d.phase}"] b`, body); const v = d.rate ?? d.value; if (tl && !nil(v)) tl.innerHTML = `${fmtV(v)}<small>${d.phase === 'latency' ? U('ms') : U('Mbps')}</small>`;
+      const sb = $(`.bm-ns[data-k="${d.phase}"]`, body); if (sb && !nil(v)) { $('u', sb).style.setProperty('--v', clamp(Math.log10(Math.max(1, v)) / Math.log10(2000), 0, 1).toFixed(3)); $('b', sb).innerHTML = `${fmtV(v)}<small>${U('Mbps')}</small>`; } });
     setCur(j); return await j;
   },
 };
@@ -925,9 +925,9 @@ const thin = (a, n = 240) => { const k = Math.max(1, Math.ceil(a.length / n)); c
   return a.filter((_, i) => i % k === 0).map(q => ({ t: Math.round(q.t * 10) / 10, cpu: r1(q.cpu), cpuFreq: r1(q.cpuFreq), cpuTemp: r1(q.cpuTemp), gpu: r1(q.gpu), gpuClock: r1(q.gpuClock), gpuTemp: r1(q.gpuTemp), gpuPower: r1(q.gpuPower) })); };
 const SERIES = [
   { k: 'temp', n: t('Temperature'), u: '°C', cpu: 'cpuTemp', gpu: 'gpuTemp' },
-  { k: 'clock', n: t('Clock'), u: 'GHz', cpu: 'cpuFreq', gpu: 'gpuClock', dec: true },
+  { k: 'clock', n: t('Clock'), u: U('GHz'), cpu: 'cpuFreq', gpu: 'gpuClock', dec: true },
   { k: 'load', n: t('Load'), u: '%', cpu: 'cpu', gpu: 'gpu' },
-  { k: 'power', n: t('Graphics card power'), u: 'W', gpu: 'gpuPower' },
+  { k: 'power', n: t('Graphics card power'), u: U('W'), gpu: 'gpuPower' },
 ];
 function renderStress(el, ctx) {
   ST.el = el; el.classList.add('fill');
@@ -1022,9 +1022,9 @@ function stSummaryHTML(S) {
     [t('Duration'), `${fmtDur(S.elapsed)} / ${t('{n} min', { n: S.minutes })}`],
     S.target !== 'gpu' && [t('Processor temperature'), nil(S.cpuTempMax) ? `<small>${t('not reported')}</small> ${DASH}` : `${fmtInt(S.cpuTempMax)} °C`],
     S.target !== 'cpu' && [t('Graphics card temperature'), nil(S.gpuTempMax) ? DASH : `${fmtInt(S.gpuTempMax)} °C`],
-    S.target !== 'gpu' && [t('Processor clock, start to end'), nil(S.cpuClockStart) ? DASH : `${fmt1(S.cpuClockStart)} → ${fmt1(S.cpuClockEnd)} GHz`],
-    S.target !== 'cpu' && [t('Graphics clock, start to end'), nil(S.gpuClockStart) ? DASH : `${fmt1(S.gpuClockStart)} → ${fmt1(S.gpuClockEnd)} GHz`],
-    S.target !== 'cpu' && !nil(S.gpuPowerAvg) && [t('Graphics card power'), `${fmtInt(S.gpuPowerAvg)} W`],
+    S.target !== 'gpu' && [t('Processor clock, start to end'), nil(S.cpuClockStart) ? DASH : `${fmt1(S.cpuClockStart)} → ${fmt1(S.cpuClockEnd)} ${U('GHz')}`],
+    S.target !== 'cpu' && [t('Graphics clock, start to end'), nil(S.gpuClockStart) ? DASH : `${fmt1(S.gpuClockStart)} → ${fmt1(S.gpuClockEnd)} ${U('GHz')}`],
+    S.target !== 'cpu' && !nil(S.gpuPowerAvg) && [t('Graphics card power'), `${fmtInt(S.gpuPowerAvg)} ${U('W')}`],
     S.target !== 'gpu' && [t('Processor performance change'), perf(S.perfStart, S.perfEnd)],
     S.target !== 'cpu' && [t('Graphics performance change'), perf(S.fpsStart, S.fpsEnd)],
     S.target !== 'gpu' && [t('Calculation errors'), fmtN(S.errors)],
@@ -1086,7 +1086,7 @@ async function runStress() {
     if (useG) {
       glCv = document.createElement('canvas'); glCv.className = 'bm-gl'; $('[data-glh]', el).appendChild(glCv);
       gl = glBench(glCv);
-      tasks.push(gl.run('nebula', { warm: 0, endless: true, onTick: (fps, frac, rate) => { const now = (performance.now() - D.t0) / 1000; if (rate > 0 && (!D.fps.length || now - D.fps[D.fps.length - 1][0] >= 1)) { D.fps.push([now, rate]); $('[data-fps]', el).textContent = `${fmtInt(rate)} fps`; } if (now >= total) gl.stop(); } }));
+      tasks.push(gl.run('nebula', { warm: 0, endless: true, onTick: (fps, frac, rate) => { const now = (performance.now() - D.t0) / 1000; if (rate > 0 && (!D.fps.length || now - D.fps[D.fps.length - 1][0] >= 1)) { D.fps.push([now, rate]); $('[data-fps]', el).textContent = `${fmtInt(rate)} ${U('fps')}`; } if (now >= total) gl.stop(); } }));
     }
     const res = await Promise.all(tasks);
     stop();
@@ -1156,7 +1156,7 @@ function hiPaint() {
   $('.bm-hi2', el).classList.toggle('few', L.length <= 6);
   $('[data-n]', el).textContent = L.length ? (L.length === 1 ? t('{n} run', { n: 1 }) : t('{n} runs', { n: L.length })) : '';
   box.innerHTML = L.length ? L.map(r => { const [n, i] = KIND[r.kind] || [r.kind, 'benchmark'];
-    const val = r.kind === 'network' ? `${fmtV(r.network.down)}<small>Mbps</small>` : r.kind === 'stress' ? `<span class="chip ${r.stress.reason || r.stress.errors ? 'bad' : (r.stress.throttle || []).length ? 'warn' : 'ok'}">${r.stress.reason ? t('Stopped') : r.stress.errors ? t('Unstable') : (r.stress.throttle || []).length ? t('Throttled') : t('Stable')}</span>` : fmtN(r.score);
+    const val = r.kind === 'network' ? `${fmtV(r.network.down)}<small>${U('Mbps')}</small>` : r.kind === 'stress' ? `<span class="chip ${r.stress.reason || r.stress.errors ? 'bad' : (r.stress.throttle || []).length ? 'warn' : 'ok'}">${r.stress.reason ? t('Stopped') : r.stress.errors ? t('Unstable') : (r.stress.throttle || []).length ? t('Throttled') : t('Stable')}</span>` : fmtN(r.score);
     return `<div class="row bm-hrow"><span class="ri${r.kind === 'full' ? ' acc' : ''}">${ic(i)}</span><span class="rt"><b>${n}</b><span>${esc(fmtDate(r.at))}, ${esc(runSummary(r))}</span></span><span class="bm-hval">${val}</span><button class="btn sm ghost bm-del" data-del="${esc(r.id)}" title="${esc(t('Delete this result'))}" aria-label="${esc(t('Delete this result'))}">${ic('trash')}</button></div>`; }).join('')
     : SH.emptyState({ art: 'first', title: t('No results yet'), text: t('Every test you run is saved here, so you can see how your PC changes over time.'), action: { label: t('Run full benchmark'), go: 'benchmark/overview', pri: true } });
 }

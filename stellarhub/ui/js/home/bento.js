@@ -115,7 +115,7 @@ function shortTitle(t, c) {
   const title = c.title || '';
   switch (t.area) {
     case 'ram': return title;
-    case 'ssd': { const w = title.split(/\s+/).filter(x => !/[-_]/.test(x) && !/^\d+(\.\d+)?$/.test(x) && x !== 'TB' && x.toUpperCase() !== 'PC'); const cap = (title.match(/(\d+(?:[.,]\d+)?)\s*TB/) || [])[0]; return [w.slice(0, 2).join(' '), cap].filter(Boolean).join(', '); }
+    case 'ssd': { const tb = SH.unit('TB'); const w = title.split(/\s+/).filter(x => !/[-_]/.test(x) && !/^\d+(?:[.,]\d+)?$/.test(x) && x !== tb && x.toUpperCase() !== 'PC'); const cap = (title.match(new RegExp(`(\\d+(?:[.,]\\d+)?)\\s*${tb}`)) || [])[0]; return [w.slice(0, 2).join(' '), cap].filter(Boolean).join(', '); }
     case 'dsp': { const m = c.monitors || []; if (m.length > 1) return SH.t('{n} displays', { n: m.length }); if (!m[0]) return title;
       const lap = SH.PC.type === 'laptop'; /* a handheld, tablet or all-in-one has a built-in screen, not a laptop's */
       return m[0].inches ? (m[0].internal ? (lap ? SH.t('{n}" laptop screen', { n: m[0].inches }) : SH.t('{n}" built-in screen', { n: m[0].inches })) : SH.t('{n}" external', { n: m[0].inches })) : (m[0].internal ? (lap ? SH.t('laptop screen') : SH.t('built-in screen')) : SH.t('external')); }
@@ -151,15 +151,15 @@ function layout(list) {
 }
 function liveHTML(area) {
   switch (area) {
-    case 'gpu': return `<div class="nums"><div><b class="n" data-l="gpu">–</b><small>${SH.t('% usage')}</small></div><div><b data-l="gtemp">–</b><small>°C</small></div><div><b data-l="gpow">–</b><small>W</small></div></div>
+    case 'gpu': return `<div class="nums"><div><b class="n" data-l="gpu">–</b><small>${SH.t('% usage')}</small></div><div><b data-l="gtemp">–</b><small>°C</small></div><div><b data-l="gpow">–</b><small>${SH.unit('W')}</small></div></div>
       <div class="lbar"><span>${SH.t('Video memory')}</span><em data-l="vram">–</em></div><div class="bar"><span data-b="vram"></span></div>`;
-    case 'cpu': return `<div class="nums"><div><b class="n" data-l="cpu">–</b><small>${SH.t('% usage')}</small></div><div><b data-l="freq">–</b><small>GHz</small></div><div><b data-l="ctemp">–</b><small>°C</small></div></div>`;
+    case 'cpu': return `<div class="nums"><div><b class="n" data-l="cpu">–</b><small>${SH.t('% usage')}</small></div><div><b data-l="freq">–</b><small>${SH.unit('GHz')}</small></div><div><b data-l="ctemp">–</b><small>°C</small></div></div>`;
     case 'ram': return `<div class="lbar"><span>${SH.t('{used} of {total} GB', { used: '<b data-l="ram">–</b>', total: '<span data-l="ramt">–</span>' })}</span></div><div class="bar"><span data-b="ram"></span></div>`;
     case 'ssd': return `<div class="lbar"><span>${SH.t('{n} GB free', { n: '<b data-l="free">–</b>' })}</span></div><div class="bar acc"><span data-b="disk"></span></div>`;
     case 'dsp': if (SH.PC.type === 'handheld') return `<div class="lbar"><span>${SH.t('Controller built in')}</span></div>`;
       return `<div class="lbar"><span data-l="dsp">${esc(andList(((comp('display') || {}).rows || []).map(r => r[1])) || '—')}</span></div>`;
     case 'bat': return `<div class="lbar"><span>${SH.t('Health {n}', { n: '<b data-l="bath">–</b>' })}</span></div>`;
-    case 'wif': return `<div class="lbar"><span><b data-l="down">–</b> Mb/s</span></div>`;
+    case 'wif': return `<div class="lbar"><span><b data-l="down">–</b> ${SH.unit('Mb/s')}</span></div>`;
     case 'aud': { const n = 1 + (rowv('audio', 'Others').split(',').filter(x => x.trim() && x.trim() !== '–').length); return `<div class="lbar"><span>${n > 1 ? SH.t('{n} devices', { n }) : SH.t('{n} device', { n })}</span></div>`; }
     case 'sys': return `<div class="lbar"><span>${SH.t('Up {time}', { time: '<b data-l="up">–</b>' })}</span></div>`;
   }

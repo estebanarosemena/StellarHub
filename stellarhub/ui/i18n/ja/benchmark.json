@@ -1,6 +1,7 @@
 {
  "Processor": "プロセッサ",
  "Graphics": "グラフィックス",
+ "Games": "Games",
  "Memory": "メモリ",
  "Disk": "ディスク",
  "Full benchmark": "フル ベンチマーク",
@@ -97,6 +98,7 @@
  "Test cancelled.": "テストをキャンセルしました。",
  "The test stopped: {msg}": "テストが停止しました: {msg}",
  "Score": "スコア",
+ "StellarHub Score": "StellarHub スコア",
  "Last run: {date}": "前回の実行: {date}",
  "(part of a full benchmark)": "(フル ベンチマークの一部)",
  "{core}: {x}× a single thread": "{core}: シングル スレッドの {x}×",

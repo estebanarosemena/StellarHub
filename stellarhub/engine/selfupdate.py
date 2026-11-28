@@ -631,7 +631,7 @@ def _download(url, dest, size, on_progress):
             h.update(chunk)
             got += len(chunk)
             if got > 500 * 1024 * 1024:
-                raise ValueError("download too large")
+                raise ValueError(tr("download too large"))
             if time.monotonic() - last > .25:
                 last = time.monotonic()
                 if _cancelled():
@@ -956,12 +956,12 @@ def unpack_portable(zip_path, dest):
         for n in z.namelist():
             target = os.path.realpath(os.path.join(dest, n))
             if not (target == root or target.startswith(root + os.sep)):
-                raise ValueError("unsafe path in the update: " + n)
+                raise ValueError(tr("unsafe path in the update: {name}", name=n))
         z.extractall(dest)
     for base in (dest, *[os.path.join(dest, x) for x in os.listdir(dest)]):
         if os.path.isfile(os.path.join(base, "StellarHub.exe")):
             return base
-    raise ValueError("the update has no StellarHub.exe")
+    raise ValueError(tr("the update has no StellarHub.exe"))
 
 
 def _new_copy():

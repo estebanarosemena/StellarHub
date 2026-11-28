@@ -34,7 +34,7 @@ html[data-int=min] #v-optimizer .ring.scanning~.ring-sw{animation:none;opacity:.
 #v-optimizer #optRight{display:flex;flex-direction:column}
 #v-optimizer #optRight>.rows{flex:1;display:flex;flex-direction:column;min-height:0}
 #v-optimizer #optRight>.rows>.ov-row{flex:1 1 auto;max-height:88px;align-items:center}
-#v-optimizer .ov-row{display:grid;grid-template-columns:34px minmax(220px,1.2fr) minmax(80px,1fr) 96px auto;gap:var(--sp-md);padding:13px 12px}
+#v-optimizer .ov-row{display:grid;grid-template-columns:34px minmax(220px,1.2fr) minmax(80px,1fr) minmax(180px,1fr) auto;gap:var(--sp-md);padding:13px 12px}
 #v-optimizer .ov-row.pending{opacity:.55}
 #v-optimizer .ov-row.pending.live{opacity:.9}
 #v-optimizer .ov-live{display:block;font-size:var(--fs-sm);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -339,7 +339,7 @@ html[data-int=min] #v-optimizer .phase .bar.indet>span{animation:none;width:100%
   #v-optimizer .st-cols,#v-optimizer .st-r{grid-template-columns:minmax(200px,1.6fr) minmax(120px,1fr) 116px 96px 46px}
   #v-optimizer .st-cols span:nth-child(5),#v-optimizer .st-r .st-or{display:none}
   #v-optimizer .st-q{width:180px}
-  #v-optimizer .ov-row{grid-template-columns:34px minmax(180px,1.4fr) minmax(50px,.6fr) 86px auto}
+  #v-optimizer .ov-row{grid-template-columns:34px minmax(180px,1.4fr) minmax(50px,.6fr) minmax(180px,1fr) auto}
 }
 @media (max-width:1100px){#v-optimizer .cl-list{grid-template-columns:1fr}}
 #v-optimizer [hidden]{display:none!important}

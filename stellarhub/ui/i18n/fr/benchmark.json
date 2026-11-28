@@ -1,6 +1,7 @@
 {
  "Processor": "Processeur",
  "Graphics": "Carte graphique",
+ "Games": "Games",
  "Memory": "Mémoire",
  "Disk": "Disque",
  "Full benchmark": "Benchmark complet",
@@ -97,6 +98,7 @@
  "Test cancelled.": "Test annulé.",
  "The test stopped: {msg}": "Le test s’est arrêté : {msg}",
  "Score": "Score",
+ "StellarHub Score": "Score StellarHub",
  "Last run: {date}": "Dernier test : {date}",
  "(part of a full benchmark)": "(dans un benchmark complet)",
  "{core}: {x}× a single thread": "{core} : {x}× un seul thread",

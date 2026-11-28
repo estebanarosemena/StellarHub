@@ -17,11 +17,11 @@
 ; file when it ends, and opens StellarHub itself the moment the files are in place (or, if the installation failed,
 ; the previous version again), so nothing is left waiting on a helper.
 ;
-; The wizard follows the Windows display language (English, Spanish, Portuguese, Italian, French, Chinese or Japanese);
-; /LANG=spanish (english, portuguese, italian, french, chinesesimplified, japanese) forces one.
+; The wizard follows the Windows display language (English, Russian, Spanish, Portuguese, Italian, French, Chinese or Japanese);
+; /LANG=russian (english, spanish, portuguese, italian, french, chinesesimplified, japanese) forces one.
 ; Silent installs keep the current settings, or use the defaults on a first install. They can also set the options:
 ;   /OPTIONS=desktop,startup,admin,widget,updates   (the ones listed are turned on, the rest off)
-;   /APPLANG=es                             (en, es, pt, it, fr, zh, ja)
+;   /APPLANG=es                             (en, ru, es, pt, it, fr, zh, ja)
 
 #ifndef AppVersion
   #error Pass the version: ISCC /DAppVersion=x.y.z StellarHub.iss
@@ -100,6 +100,7 @@ VersionInfoCopyright=Copyright (C) Esteban Arosemena
 [Languages]
 ; the language codes the app uses for each one are in AppLangOf, in [Code]
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "portuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
@@ -117,6 +118,11 @@ english.WelcomeLabel2=This will install [name/ver] on your PC.%n%nLive hardware 
 english.FinishedHeadingLabel=StellarHub is ready
 english.FinishedLabelNoIcons=StellarHub is installed.
 english.FinishedLabel=StellarHub is installed. You can open it any time from the Start menu.
+russian.WelcomeLabel1=Добро пожаловать в StellarHub
+russian.WelcomeLabel2=На ваш компьютер будет установлен [name/ver].%n%nДанные оборудования в реальном времени, драйверы, приложения, место на диске, очистка и тесты оборудования: всё, что нужно вашему компьютеру, в одном месте.
+russian.FinishedHeadingLabel=StellarHub готов к работе
+russian.FinishedLabelNoIcons=StellarHub установлен.
+russian.FinishedLabel=StellarHub установлен. Вы можете открыть его в любое время из меню «Пуск».
 spanish.WelcomeLabel1=Te damos la bienvenida a StellarHub
 spanish.WelcomeLabel2=Se instalará [name/ver] en tu PC.%n%nEstadísticas del hardware en vivo, controladores, aplicaciones, espacio en disco, limpieza y pruebas de hardware: todo lo que tu PC necesita, en un solo lugar.
 spanish.FinishedHeadingLabel=StellarHub está listo
@@ -173,6 +179,31 @@ english.RunWebView=Installing the Microsoft Edge WebView2 Runtime...
 english.RunApp=Open StellarHub now
 english.RunNotes=See what's new in version %1
 english.UninstRemoveData=Also remove your StellarHub settings and scheduled task history?%n%nChoose No to keep them for a future installation.
+
+russian.AppTagline=Центр управления вашим компьютером Windows
+russian.InfoInstalls=Устанавливает StellarHub. Если на компьютере ещё нет Microsoft Edge WebView2 Runtime, он также будет загружен с сайта Microsoft и установлен.
+russian.InfoRequires=Требуется 64-разрядная Windows 10 (версия 1809) или новее.
+russian.InfoFree=Бесплатное открытое программное обеспечение под лицензией GNU GPL v3. Без рекламы и учётной записи.
+russian.LinkGitHub=StellarHub на GitHub
+russian.OptionsTitle=Выберите параметры
+russian.OptionsDesc=Как должен запускаться StellarHub? Все эти параметры можно изменить позже в настройках.
+russian.OptDesktop=Создать ярлык на рабочем столе
+russian.OptStartup=Открывать StellarHub при запуске Windows
+russian.OptStartupHint=Приложение будет незаметно ждать в области уведомлений рядом с часами.
+russian.OptAdmin=Всегда открывать от имени администратора
+russian.OptAdminHint=Все инструменты сразу готовы к работе, без запроса разрешения Windows при каждом запуске.
+russian.OptAdminHintUser=Все инструменты сразу готовы к работе. Windows будет запрашивать разрешение при каждом открытии StellarHub.
+russian.OptWidget=Показывать всегда видимый виджет при запуске
+russian.OptWidgetHint=Небольшая панель с текущим состоянием компьютера поверх всех окон.
+russian.OptUpdate=Поддерживать StellarHub в актуальном состоянии
+russian.OptUpdateHint=При запуске StellarHub проверяет GitHub на наличие новой версии и спрашивает перед обновлением.
+russian.OptLanguage=Язык приложения
+russian.StatusApplying=Применение выбранных параметров...
+russian.StatusWarm=Подготовка StellarHub к первому запуску...
+russian.RunWebView=Установка Microsoft Edge WebView2 Runtime...
+russian.RunApp=Открыть StellarHub сейчас
+russian.RunNotes=Что нового в версии %1
+russian.UninstRemoveData=Удалить также настройки StellarHub и историю запланированных заданий?%n%nВыберите «Нет», чтобы сохранить их для будущей установки.
 
 spanish.AppTagline=El centro de control de tu PC con Windows
 spanish.InfoInstalls=Instala StellarHub. Si Windows aún no tiene Microsoft Edge WebView2 Runtime, también lo descarga de Microsoft y lo instala.
@@ -476,6 +507,7 @@ begin
     4: Result := 'fr';
     5: Result := 'zh';
     6: Result := 'ja';
+    7: Result := 'ru';
   else
     Result := 'en';
   end;
@@ -487,14 +519,15 @@ var
 begin
   Result := -1;
   Code := Lowercase(Copy(Trim(Code), 1, 2));
-  for I := 0 to 6 do
+  for I := 0 to 7 do
     if AppLangAt(I) = Code then
       Result := I;
 end;
 
 function AppLangOf(WizardLanguage: String): String;
 begin
-  if WizardLanguage = 'spanish' then Result := 'es'
+  if WizardLanguage = 'russian' then Result := 'ru'
+  else if WizardLanguage = 'spanish' then Result := 'es'
   else if WizardLanguage = 'portuguese' then Result := 'pt'
   else if WizardLanguage = 'italian' then Result := 'it'
   else if WizardLanguage = 'french' then Result := 'fr'
